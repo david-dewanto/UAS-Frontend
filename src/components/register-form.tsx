@@ -141,7 +141,7 @@ export function RegisterForm({
     setAlert(null);
 
     try {
-      const response = await authService.signInWithGoogle();
+      await authService.signInWithGoogle();
       
       setAlert({
         show: true,
