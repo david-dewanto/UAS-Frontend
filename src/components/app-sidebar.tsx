@@ -131,14 +131,14 @@ const NavItem = ({ item, level = 0 }: NavItemProps) => {
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader className="flex h-16 items-center justify-center border-b px-6">
-          <img src={logo} alt="Logo" className="h-[30px]" /> 
+      <SidebarHeader className="flex h-24 items-center justify-center border-b px-6">
+          <img src={logo} alt="Logo" className="h-[40px]" /> 
       </SidebarHeader>
       <ScrollArea className="flex-1">
         <div className="space-y-6 p-2">
           {navSections.map((section) => (
             <div key={section.title} className="space-y-1">
-              <h3 className="px-4 text-sm font-medium text-muted-foreground">
+              <h3 className="px-2 text-sm font-medium text-muted-foreground">
                 {section.title}
               </h3>
               {section.items.map((item) => (
@@ -148,7 +148,7 @@ export function AppSidebar() {
           ))}
         </div>
       </ScrollArea>
-      <div className="p-2 border-t">
+      <div className="p-3 border-t">
         <Button variant="ghost" className="w-full justify-start gap-2 text-red-500">
           <LogOut className="h-4 w-4" />
           Logout

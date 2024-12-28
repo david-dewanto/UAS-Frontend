@@ -13,7 +13,6 @@ import logo from "@/assets/logo.svg";
 import { Link } from 'react-router-dom'
 
 const LandingPage = () => {
-  // Sample data for the chart
   const chartData = [
     { date: "Jan", IHSG: 7200, BBCA: 7000, TLKM: 2000 },
     { date: "Feb", IHSG: 9000, BBCA: 12000, TLKM: 5000 },

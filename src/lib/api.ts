@@ -3,11 +3,13 @@ import axios from 'axios';
 
 // Base URL pointing directly to your FastAPI backend
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.fintrackit.my.id';
+const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
+    'X-API-Key': INTERNAL_API_KEY,
   },
   withCredentials: true // Important for handling cookies if needed
 });
@@ -51,19 +53,6 @@ export const authApi = {
   logout: () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
-  }
-};
-
-// Secure API endpoints
-export const secureApi = {
-  getData: async () => {
-    const { data } = await api.get('/secure/data');
-    return data;
-  },
-
-  updateProfile: async (profileData: any) => {
-    const { data } = await api.put('/secure/profile', profileData);
-    return data;
   }
 };
 
