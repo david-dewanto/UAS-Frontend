@@ -4,27 +4,13 @@ import axios from 'axios';
 const API_URL = 'https://api.fintrackit.my.id/v1/';
 const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
 
-// Custom transform request function
-const httpsTransform = (data: any, headers?: any) => {
-  if (headers?.['Content-Type']?.includes('application/json')) {
-    return JSON.stringify(data, (_key, value) => {
-      if (typeof value === 'string' && value.startsWith('http://')) {
-        return value.replace('http://', 'https://');
-      }
-      return value;
-    });
-  }
-  return data;
-};
-
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: API_URL.replace('http://', 'https://'),  // Force HTTPS
   headers: {
     'Content-Type': 'application/json',
     'X-API-Key': INTERNAL_API_KEY,
   },
   withCredentials: false,  
-  transformRequest: [httpsTransform, ...(axios.defaults.transformRequest as any[] || [])]
 });
 
 // Request interceptor for auth token
