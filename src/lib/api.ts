@@ -23,7 +23,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'X-API-Key': INTERNAL_API_KEY,
   },
-  withCredentials: true,
+  withCredentials: false,  
   transformRequest: [httpsTransform, ...(axios.defaults.transformRequest as any[] || [])]
 });
 
