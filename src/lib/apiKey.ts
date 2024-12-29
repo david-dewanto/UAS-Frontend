@@ -21,7 +21,7 @@ export const apiKeyService = {
   generateApiKey: async (request: APIKeyRequest): Promise<APIKeyResponse> => {
     try {
       const { data } = await api.post<APIKeyResponse>(
-        '/internal/generate-api-key/',
+        '/internal/generate-api-key',
         request
       );
       return data;

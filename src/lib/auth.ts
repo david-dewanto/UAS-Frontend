@@ -34,7 +34,7 @@ export interface PasswordResetResponse {
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
-      const { data } = await api.post<LoginResponse>("/internal/auth/signin/email", credentials);
+      const { data } = await api.post<LoginResponse>("/internal/auth/signin/email/", credentials);
       if (data.uid) {
         localStorage.setItem("user", JSON.stringify(data));
       }
@@ -61,7 +61,7 @@ export const authService = {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
-      const { data } = await api.post<LoginResponse>("/internal/auth/signin/google", {
+      const { data } = await api.post<LoginResponse>("/internal/auth/signin/google/", {
         id_token: idToken,
       });
 
@@ -80,7 +80,7 @@ export const authService = {
 
   register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
     try {
-      const { data } = await api.post<LoginResponse>("/internal/auth/signup/email", credentials);
+      const { data } = await api.post<LoginResponse>("/internal/auth/signup/email/", credentials);
       return data;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
@@ -92,7 +92,7 @@ export const authService = {
   
   resetPassword: async (email: string): Promise<PasswordResetResponse> => {
     try {
-      const { data } = await api.post<PasswordResetResponse>("/internal/auth/reset-password", {
+      const { data } = await api.post<PasswordResetResponse>("/internal/auth/reset-password/", {
         email: email,
       });
       return data;
