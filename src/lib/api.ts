@@ -7,7 +7,7 @@ const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e
 // Custom transform request function
 const httpsTransform = (data: any, headers?: any) => {
   if (headers?.['Content-Type']?.includes('application/json')) {
-    return JSON.stringify(data, (key, value) => {
+    return JSON.stringify(data, (_key, value) => {
       if (typeof value === 'string' && value.startsWith('http://')) {
         return value.replace('http://', 'https://');
       }
