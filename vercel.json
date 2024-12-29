@@ -3,14 +3,14 @@
   "regions": ["sin1"],
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/proxy/[...path].ts"
+      "source": "/api/:path*",
+      "destination": "/api/proxy/[...path]"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
