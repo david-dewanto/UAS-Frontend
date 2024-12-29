@@ -20,10 +20,12 @@ const isValidOrigin = (origin: string | undefined): boolean => {
 // Helper to sanitize and validate path
 const sanitizePath = (pathSegments: string[]): string => {
   // Remove any null, undefined, or empty strings
-  return pathSegments
+  // Important: Remove trailing slash
+  const path = pathSegments
     .filter(Boolean)
     .map(segment => encodeURIComponent(segment))
     .join('/');
+  return path.endsWith('/') ? path.slice(0, -1) : path;  // Remove trailing slash
 };
 
 export default async function handler(
@@ -54,11 +56,6 @@ export default async function handler(
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Validate origin for production
-    if (process.env.NODE_ENV === 'production' && !isValidOrigin(origin)) {
-      return res.status(403).json({ error: 'Origin not allowed' });
-    }
-
     // Get and sanitize the path from query parameters
     const pathSegments = req.query.path as string[];
     const sanitizedPath = sanitizePath(pathSegments);
@@ -68,7 +65,7 @@ export default async function handler(
     }
 
     // Construct the full URL with HTTPS
-    const url = `${BACKEND_URL}/v1/${sanitizedPath}`.replace('http://', 'https://');
+    const url = `${BACKEND_URL}/v1/${sanitizedPath}`;
 
     // Create headers
     const headers = new Headers({
@@ -110,13 +107,10 @@ export default async function handler(
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', origin || '*');
 
-    // Forward the response
     return res.status(response.status).send(data);
 
   } catch (error) {
     console.error('API Error:', error);
-    
-    // Don't expose internal errors to clients
     const message = process.env.NODE_ENV === 'development' 
       ? (error instanceof Error ? error.message : 'Unknown error')
       : 'Internal server error';
