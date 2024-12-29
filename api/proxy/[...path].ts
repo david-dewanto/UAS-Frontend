@@ -1,10 +1,10 @@
 // src/api/proxy/[...path].ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const BACKEND_URL = process.env.BACKEND_URL;
+const BACKEND_URL = process.env.BACKEND_URL?.replace('http://', 'https://');
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
 const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-const ALLOWED_ORIGINS = ['https://fintrackit.my.id']; // Add your frontend domains
+const ALLOWED_ORIGINS = ['https://fintrackit.my.id'];
 
 // Helper to validate request method
 const isValidMethod = (method: string): boolean => {
@@ -18,9 +18,9 @@ const isValidOrigin = (origin: string | undefined): boolean => {
 };
 
 // Helper to sanitize and validate path
-const sanitizePath = (path: string[]): string => {
+const sanitizePath = (pathSegments: string[]): string => {
   // Remove any null, undefined, or empty strings
-  return path
+  return pathSegments
     .filter(Boolean)
     .map(segment => encodeURIComponent(segment))
     .join('/');
@@ -59,14 +59,16 @@ export default async function handler(
       return res.status(403).json({ error: 'Origin not allowed' });
     }
 
-    // Get and sanitize the path
-    const path = sanitizePath(req.query.path as string[]);
-    if (!path) {
+    // Get and sanitize the path from query parameters
+    const pathSegments = req.query.path as string[];
+    const sanitizedPath = sanitizePath(pathSegments);
+    
+    if (!sanitizedPath) {
       return res.status(400).json({ error: 'Invalid path' });
     }
 
-    // Construct the full URL
-    const url = `${BACKEND_URL}/v1/${path}`;
+    // Construct the full URL with HTTPS
+    const url = `${BACKEND_URL}/v1/${sanitizedPath}`.replace('http://', 'https://');
 
     // Create headers
     const headers = new Headers({
