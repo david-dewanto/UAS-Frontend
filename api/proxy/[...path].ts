@@ -4,7 +4,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const BACKEND_URL = process.env.BACKEND_URL?.replace('http://', 'https://');
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
 const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-const ALLOWED_ORIGINS = ['https://fintrackit.my.id'];
+const ALLOWED_ORIGINS = [
+  'https://fintrackit.my.id',
+  'https://www.fintrackit.my.id'
+];
 
 // Helper to validate request method
 const isValidMethod = (method: string): boolean => {
