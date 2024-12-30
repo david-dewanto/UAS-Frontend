@@ -13,8 +13,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/proxy/[...path]"
+      "source": "/api/internal/:path*",
+      "destination": "/api/proxy/:path*"
     },
     {
       "source": "/((?!api/.*).*)",

@@ -35,91 +35,56 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  const origin = req.headers.origin;
-
-  // CORS preflight
-  if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    res.setHeader('Access-Control-Allow-Methods', ALLOWED_METHODS.join(', '));
-    res.setHeader('Access-Control-Allow-Headers', 
-      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
-    );
-    return res.status(200).end();
-  }
+  console.log('Incoming Proxy Request:', {
+    method: req.method,
+    url: req.url,
+    path: req.query.path,
+    headers: req.headers,
+    body: req.body
+  });
 
   try {
-    // Validate environment variables
     if (!BACKEND_URL || !INTERNAL_API_KEY) {
+      console.error('Missing env vars:', { BACKEND_URL, INTERNAL_API_KEY: !!INTERNAL_API_KEY });
       throw new Error('Missing required environment variables');
     }
 
-    // Validate request method
-    if (!isValidMethod(req.method || '')) {
-      return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    // Get and sanitize the path from query parameters
-    const pathSegments = req.query.path as string[];
+    const pathSegments = Array.isArray(req.query.path) ? req.query.path : [req.query.path];
     const sanitizedPath = sanitizePath(pathSegments);
     
-    if (!sanitizedPath) {
-      return res.status(400).json({ error: 'Invalid path' });
-    }
-
-    // Construct the full URL with HTTPS
     const url = `${BACKEND_URL}/${sanitizedPath}`;
+    console.log('Proxying request to:', url);
 
-    console.log('Proxying to:', url);
-
-    // Create headers
-    const headers = new Headers({
-      'X-API-Key': INTERNAL_API_KEY,
+    // Fix the headers type
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Forwarded-For': req.headers['x-forwarded-for'] as string || req.socket.remoteAddress || '',
-      'X-Real-IP': req.headers['x-real-ip'] as string || req.socket.remoteAddress || ''
-    });
+      'X-API-Key': INTERNAL_API_KEY,
+    };
 
-    // Forward authorization if present
     if (req.headers.authorization) {
-      headers.set('Authorization', req.headers.authorization);
+      headers['Authorization'] = req.headers.authorization;
     }
 
-    // Forward the request
+    console.log('Proxy request headers:', headers);
+
     const response = await fetch(url, {
       method: req.method,
       headers: headers,
-      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined,
-      redirect: 'follow',
+      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
     });
 
-    // Handle non-JSON responses
-    const contentType = response.headers.get('content-type');
-    let data;
-    
-    if (contentType?.includes('application/json')) {
-      data = await response.json();
-    } else {
-      data = await response.text();
-    }
+    console.log('Proxy response status:', response.status);
 
-    // Forward response headers
-    response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
-    });
+    const data = await response.json().catch(() => response.text());
+    console.log('Proxy response data:', data);
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-
-    return res.status(response.status).send(data);
+    return res.status(response.status).json(data);
 
   } catch (error) {
-    console.error('API Error:', error);
-    const message = process.env.NODE_ENV === 'development' 
-      ? (error instanceof Error ? error.message : 'Unknown error')
-      : 'Internal server error';
-      
-    return res.status(500).json({ error: message });
+    console.error('Proxy error:', error);
+    return res.status(500).json({ 
+      error: 'Proxy error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }
