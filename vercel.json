@@ -14,7 +14,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.fintrackit.my.id/v1/:path*"
+      "destination": "https://api.fintrackit.my.id/v1/:path*"  
     },
     {
       "source": "/((?!api/.*).*)",
