@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     url: req.url,
     method: req.method,
     query: req.query,
-    path: req.query.path
+    path: Array.isArray(req.query.path) ? req.query.path.join('/') : req.query.path
   })
 
   if (!internalApiKey) {
@@ -18,8 +18,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Get the full path from the URL
-    const fullPath = req.url?.split('/api/proxy/')?.[1] || ''
+    // Get the path from the query params
+    const pathSegments = Array.isArray(req.query.path) ? req.query.path : [req.query.path]
+    const fullPath = pathSegments.join('/')
     const targetUrl = `${backendUrl}/${fullPath}`
 
     console.log('Proxying to:', targetUrl)
@@ -35,10 +36,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : undefined
     })
     
+    if (!response.ok) {
+      // Forward the error status and message
+      const errorData = await response.json()
+      return res.status(response.status).json(errorData)
+    }
+
     const data = await response.json()
-    res.status(response.status).json(data)
+    return res.status(response.status).json(data)
   } catch (error) {
     console.error('Proxy error:', error)
-    res.status(500).json({ error: 'Error proxying request' })
+    return res.status(500).json({ error: 'Error proxying request' })
   }
 }
