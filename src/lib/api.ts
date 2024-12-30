@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = 'https://api.fintrackit.my.id/v1';
+const API_URL = '/api/proxy';
 const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
 
 const api = axios.create({
