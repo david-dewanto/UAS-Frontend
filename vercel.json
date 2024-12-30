@@ -20,6 +20,13 @@
       "continue": true
     },
     {
+      "src": ".*\\.(js|mjs|jsx|ts|tsx)",
+      "headers": {
+        "Content-Type": "application/javascript; charset=utf-8"
+      },
+      "continue": true
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
