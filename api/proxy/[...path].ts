@@ -1,7 +1,7 @@
 // src/api/proxy/[...path].ts
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const BACKEND_URL = process.env.BACKEND_URL?.replace('http://', 'https://');
+const BACKEND_URL = process.env.BACKEND_URL?.replace(/\/+$/, ''); 
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
 const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 const ALLOWED_ORIGINS = [
@@ -36,11 +36,6 @@ export default async function handler(
   res: VercelResponse
 ) {
   const origin = req.headers.origin;
-  console.log('Proxy request received:', {
-    method: req.method,
-    origin,
-    path: req.query.path
-  });
 
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -73,7 +68,9 @@ export default async function handler(
     }
 
     // Construct the full URL with HTTPS
-    const url = `${BACKEND_URL}/v1/${sanitizedPath}`;
+    const url = `${BACKEND_URL}/${sanitizedPath}`;
+
+    console.log('Proxying to:', url);
 
     // Create headers
     const headers = new Headers({
