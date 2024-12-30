@@ -13,8 +13,8 @@
   ],
   "rewrites": [
     {
-      "source": "/api/internal/:path*",
-      "destination": "/api/proxy/:path*"
+      "source": "/api/:match*",
+      "destination": "https://api.fintrackit.my.id/:match*"
     },
     {
       "source": "/((?!api/.*).*)",
