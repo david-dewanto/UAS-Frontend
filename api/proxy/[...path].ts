@@ -1,11 +1,12 @@
-// api/proxy/[...path].ts
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const backendUrl = 'https://api.fintrackit.my.id/v1'  // Hardcoded or use env var
+  const backendUrl = 'https://api.fintrackit.my.id/v1'
   const internalApiKey = process.env.INTERNAL_API_KEY
 
-  console.log('Incoming request to proxy:', req.url) // Debug log
+  // In [...path].ts, the path comes from req.query.path
+  const pathSegments = req.query.path as string[]
+  console.log('Path segments:', pathSegments) // Debug log
 
   if (!internalApiKey) {
     console.error('Missing API key')
@@ -13,9 +14,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Remove '/api/proxy' and add the path to backend URL
-    const path = req.url?.replace('/api/proxy', '') || ''
-    const targetUrl = `${backendUrl}${path}`
+    // Join the path segments to create the full path
+    const path = pathSegments.join('/')
+    const targetUrl = `${backendUrl}/${path}`
 
     console.log('Proxying to:', targetUrl) // Debug log
 
