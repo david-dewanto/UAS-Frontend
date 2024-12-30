@@ -1,10 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export const config = {
+  runtime: 'edge',
+  regions: ['sin1'], // optional: specify regions
+}
+
+const handler = async function(req: VercelRequest, res: VercelResponse) {
   const backendUrl = 'https://api.fintrackit.my.id/v1'
   const internalApiKey = process.env.INTERNAL_API_KEY
 
-  // Log the full request details for debugging
   console.log('Request details:', {
     url: req.url,
     method: req.method,
@@ -18,7 +22,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    // Get the path from the query params
     const pathSegments = Array.isArray(req.query.path) ? req.query.path : [req.query.path]
     const fullPath = pathSegments.join('/')
     const targetUrl = `${backendUrl}/${fullPath}`
@@ -36,12 +39,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         : undefined
     })
     
-    if (!response.ok) {
-      // Forward the error status and message
-      const errorData = await response.json()
-      return res.status(response.status).json(errorData)
-    }
-
     const data = await response.json()
     return res.status(response.status).json(data)
   } catch (error) {
@@ -49,3 +46,5 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Error proxying request' })
   }
 }
+
+export default handler

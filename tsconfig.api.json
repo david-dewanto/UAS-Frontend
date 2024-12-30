@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "outDir": "dist/api",
+    "rootDir": "api",
+    "lib": ["es2017"],
+    "types": ["@vercel/node"]
+  },
+  "include": ["api/**/*.ts"],
+  "exclude": ["node_modules"]
+}
