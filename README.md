@@ -1,50 +1,91 @@
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+C:.
+│   .env
+│   .gitignore
+│   components.json
+│   eslint.config.js
+│   index.html
+│   package-lock.json
+│   package.json
+│   postcss.config.js
+│   README.md
+│   tailwind.config.js
+│   tsconfig.json
+│   tsconfig.node.json
+│   vercel.build.js
+│   vercel.json
+│   vite.config.ts
+│
+├───api
+│   └───proxy
+│           [...path].ts
+│
+├───public
+│       small-icon.svg
+│       _redirects
+│
+└───src
+    │   App.css
+    │   App.tsx
+    │   index.css
+    │   main.tsx
+    │   vite-env.d.ts
+    │
+    ├───app
+    │   └───dashboard
+    │           page.tsx
+    │
+    ├───assets
+    │       logo.svg
+    │
+    ├───components
+    │   │   app-sidebar.tsx
+    │   │   forgot-password-modal.tsx
+    │   │   login-form.tsx
+    │   │   nav-main.tsx
+    │   │   nav-projects.tsx
+    │   │   nav-user.tsx
+    │   │   register-form.tsx
+    │   │   team-switcher.tsx
+    │   │
+    │   ├───developer
+    │   │       api-docs.tsx
+    │   │       api-keys.tsx
+    │   │
+    │   └───ui
+    │           alert.tsx
+    │           avatar.tsx
+    │           badge.tsx
+    │           breadcrumb.tsx
+    │           button.tsx
+    │           card.tsx
+    │           collapsible.tsx
+    │           dialog.tsx
+    │           dropdown-menu.tsx
+    │           input.tsx
+    │           label.tsx
+    │           scroll-area.tsx
+    │           separator.tsx
+    │           sheet.tsx
+    │           sidebar.tsx
+    │           skeleton.tsx
+    │           tabs.tsx
+    │           toast.tsx
+    │           toaster.tsx
+    │           tooltip.tsx
+    │
+    ├───hooks
+    │       use-mobile.tsx
+    │       use-toast.ts
+    │
+    ├───lib
+    │       api.ts
+    │       apiKey.ts
+    │       auth.ts
+    │       firebase.ts
+    │       utils.ts
+    │
+    └───pages
+            DashboardPage.tsx
+            LandingPage.tsx
+            LoginPage.tsx
+            RegisterPage.tsx

@@ -36,6 +36,11 @@ export default async function handler(
   res: VercelResponse
 ) {
   const origin = req.headers.origin;
+  console.log('Proxy request received:', {
+    method: req.method,
+    origin,
+    path: req.query.path
+  });
 
   // CORS preflight
   if (req.method === 'OPTIONS') {
