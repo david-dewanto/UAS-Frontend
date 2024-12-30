@@ -17,12 +17,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   
   // Clean double slashes from URL
   config.url = config.url.replace(/([^:]\/)\/+/g, '$1');
-
-  // Add auth token if exists
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
   
   // Development logging
   if (process.env.NODE_ENV === 'development') {

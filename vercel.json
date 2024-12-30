@@ -7,6 +7,10 @@
     {
       "src": "/api/proxy/(.*)",
       "dest": "/api/proxy/[...path]"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
