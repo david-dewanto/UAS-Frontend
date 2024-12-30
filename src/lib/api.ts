@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = 'https://api.fintrackit.my.id';
+const API_URL = 'https://api.fintrackit.my.id/v1';
 const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
 
 const api = axios.create({
@@ -10,7 +10,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'X-API-Key': INTERNAL_API_KEY,
   },
-  withCredentials: false,
+  withCredentials: false, // Set to false for public API access
 });
 
 // Request interceptor for auth token
@@ -24,13 +24,15 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
-  console.log('Full request URL:', config.baseURL + config.url);
-  console.log('Request config:', {
-    method: config.method,
-    baseURL: config.baseURL,
-    url: config.url,
-    headers: config.headers
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Full request URL:', config.baseURL + config.url);
+    console.log('Request config:', {
+      method: config.method,
+      baseURL: config.baseURL,
+      url: config.url,
+      headers: config.headers
+    });
+  }
   
   return config;
 });
