@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "src": "/api/proxy/test",
+      "dest": "/api/proxy/test"
+    },
+    {
+      "src": "/api/proxy/(.*)",
+      "dest": "/api/proxy/[...path]"
+    }
+  ]
+}
