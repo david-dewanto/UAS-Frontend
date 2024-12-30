@@ -15,13 +15,19 @@ const api = axios.create({
 
 // Request interceptor for auth token
 api.interceptors.request.use((config) => {
+  config.url = config.url?.replace(/([^:]\/)\/+/g, '$1');
+
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log('Making request to:', config.url);
-  console.log('Request method:', config.method);
-  console.log('Request headers:', config.headers);
+  console.log('Full request URL:', window.location.origin + config.baseURL + config.url);
+  console.log('Request config:', {
+    method: config.method,
+    baseURL: config.baseURL,
+    url: config.url,
+    headers: config.headers
+  });
   return config;
 });
 
