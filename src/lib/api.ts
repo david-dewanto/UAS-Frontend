@@ -1,31 +1,32 @@
 // src/lib/api.ts
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = '/api/proxy';
-const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
+const API_URL = '/api/proxy';  // Keep this relative
 
 const api = axios.create({
   baseURL: API_URL,  
   headers: {
     'Content-Type': 'application/json',
-    'X-API-Key': INTERNAL_API_KEY,
   },
-  withCredentials: false, // Set to false for public API access
+  withCredentials: false,
 });
 
 // Request interceptor for auth token
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (!config.url) return config;
   
+  // Clean double slashes from URL
   config.url = config.url.replace(/([^:]\/)\/+/g, '$1');
 
+  // Add auth token if exists
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   
+  // Development logging
   if (process.env.NODE_ENV === 'development') {
-    console.log('Full request URL:', config.baseURL + config.url);
+    console.log('Full request URL:', `${window.location.origin}${config.baseURL}${config.url}`);
     console.log('Request config:', {
       method: config.method,
       baseURL: config.baseURL,
@@ -37,7 +38,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// Response interceptor for handling errors
+// Response interceptor remains the same
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -49,10 +50,10 @@ api.interceptors.response.use(
   }
 );
 
-// Auth related API calls
+// Auth related API calls - notice we're using the full path now
 export const authApi = {
   login: async (credentials: { username: string; password: string }) => {
-    const { data } = await api.post('/auth/login', credentials);
+    const { data } = await api.post('/internal/auth/signin/email/', credentials);
     if (data.token) {
       localStorage.setItem('token', data.token);
     }
@@ -60,7 +61,7 @@ export const authApi = {
   },
 
   register: async (userData: { username: string; email: string; password: string }) => {
-    const { data } = await api.post('/auth/register', userData);
+    const { data } = await api.post('/internal/auth/register/', userData);
     return data;
   },
 

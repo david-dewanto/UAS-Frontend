@@ -2,25 +2,29 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const backendUrl = process.env.BACKEND_URL
+  const backendUrl = 'https://api.fintrackit.my.id/v1'  // Hardcoded or use env var
   const internalApiKey = process.env.INTERNAL_API_KEY
 
-  if (!backendUrl || !internalApiKey) {
+  console.log('Incoming request to proxy:', req.url) // Debug log
+
+  if (!internalApiKey) {
+    console.error('Missing API key')
     return res.status(500).json({ error: 'Server configuration error' })
   }
 
   try {
-    const url = new URL(req.url!, `https://${req.headers.host}`)
-    const targetUrl = `${backendUrl}${url.pathname}${url.search}`
+    // Remove '/api/proxy' and add the path to backend URL
+    const path = req.url?.replace('/api/proxy', '') || ''
+    const targetUrl = `${backendUrl}${path}`
 
-    const headers: HeadersInit = {
-      'X-API-Key': internalApiKey,
-      'Content-Type': 'application/json',
-    }
+    console.log('Proxying to:', targetUrl) // Debug log
 
     const response = await fetch(targetUrl, {
       method: req.method,
-      headers,
+      headers: {
+        'X-API-Key': internalApiKey,
+        'Content-Type': 'application/json',
+      },
       body: ['POST', 'PUT', 'PATCH'].includes(req.method || '') 
         ? JSON.stringify(req.body) 
         : undefined
