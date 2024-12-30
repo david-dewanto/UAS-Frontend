@@ -9,8 +9,29 @@
       "dest": "/api/proxy/[...path]"
     },
     {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/assets/.*\\.(js|mjs)",
+      "headers": {
+        "Content-Type": "application/javascript; charset=utf-8"
+      },
+      "continue": true
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)\\.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
     }
   ]
 }
