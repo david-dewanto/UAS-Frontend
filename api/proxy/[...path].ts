@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const BACKEND_URL = process.env.BACKEND_URL?.replace(/\/+$/, ''); 
 const INTERNAL_API_KEY = process.env.INTERNAL_API_KEY;
-const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const ALLOWED_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'];
 const ALLOWED_ORIGINS = [
   'https://fintrackit.my.id',
   'https://www.fintrackit.my.id'

@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import axios from 'axios';
 
-const API_URL = '/api/'; 
+const API_URL = '/api'; 
 const INTERNAL_API_KEY = import.meta.env.VITE_INTERNAL_API_KEY || '621f00b1-c60e-44dc-9455-fc3cd86b7868-4fdd7370-25db-42c5-9de2-71487994c6ad';
 
 const api = axios.create({
@@ -19,6 +19,9 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log('Making request to:', config.url);
+  console.log('Request method:', config.method);
+  console.log('Request headers:', config.headers);
   return config;
 });
 
