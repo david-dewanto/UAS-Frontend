@@ -115,25 +115,25 @@ const APIKeys = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">API Keys</h2>
-        <p className="text-muted-foreground">Manage your API keys for developer access</p>
+    <div className="space-y-8">
+      <div className="border-b pb-6">
+        <h1 className="text-4xl font-bold tracking-tight">API Keys</h1>
+        <p className="text-xl text-muted-foreground mt-2">Manage your API keys for developer access</p>
       </div>
 
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="destructive" className="flex items-center">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="text-2xl flex items-center gap-2">
             <Key className="h-5 w-5" />
             Your API Keys
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-base">
             Use these keys to authenticate your API requests. Keep them secure and never share them publicly.
           </CardDescription>
         </CardHeader>
@@ -223,8 +223,8 @@ const APIKeys = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-semibold">API Key for {formData.application_name}</h3>
-                  <p className="text-sm text-muted-foreground my-1">
+                  <h3 className="text-xl font-semibold">API Key for {formData.application_name}</h3>
+                  <p className="text-base text-muted-foreground my-1">
                     <span className="font-bold text-red-600 block mb-2">Please save this Key, it will be only shown once!</span>
                   </p>
                 </div>

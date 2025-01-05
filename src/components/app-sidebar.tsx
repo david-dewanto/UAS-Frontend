@@ -42,14 +42,14 @@ const navSections: NavSection[] = [
     title: "Developer Mode",
     items: [
       { 
+        name: "Quick Start", 
+        path: "/dashboard/developer/quick-start",
+        icon: <Zap className="h-4 w-4" />
+      },
+      { 
         name: "Generate API Keys", 
         path: "/dashboard/developer/api-keys",
         icon: <Key className="h-4 w-4" />
-      },
-      { 
-        name: "Quick Start", 
-        path: "/dashboard/developer/",
-        icon: <Zap className="h-4 w-4" />
       },
       { 
         name: "Documentation", 
@@ -57,8 +57,13 @@ const navSections: NavSection[] = [
         icon: <BookOpen className="h-4 w-4" />,
         submenu: [
           { 
-            name: "Routes 1", 
-            path: "/dashboard/developer/docs/",
+            name: "Authentication", 
+            path: "/dashboard/developer/docs/auth",
+            icon: <Route className="h-4 w-4" />
+          },
+          {
+            name: "Email Service",
+            path: "/dashboard/developer/docs/email",
             icon: <Route className="h-4 w-4" />
           }
         ]
