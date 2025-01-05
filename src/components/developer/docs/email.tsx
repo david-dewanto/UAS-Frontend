@@ -47,7 +47,7 @@ const EmailDocumentation = () => {
     </div>
   );
 
-  const requestExample = `curl -X POST "https://fintrackit.my.id/v1/secure/send-email" \\
+  const requestExample = `curl -X POST "https://api.fintrackit.my.id/v1/secure/send-email" \\
 -H "Authorization: Bearer your_access_token_here" \\
 -H "Content-Type: application/json" \\
 -d '{
@@ -85,7 +85,7 @@ const EmailDocumentation = () => {
         <CardContent>
           <div className="space-y-4">
             <p className="text-base font-medium">
-              Base URL: https://fintrackit.my.id/v1/secure
+              Base URL: https://api.fintrackit.my.id/v1/secure
             </p>
             <div className="space-y-2">
               <p className="font-semibold">Key Points:</p>
@@ -159,7 +159,7 @@ const EmailDocumentation = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">URL:</span>
                 <code className="bg-muted px-2 py-1 rounded">
-                  https://fintrackit.my.id/v1/secure/send-email
+                  https://api.fintrackit.my.id/v1/secure/send-email
                 </code>
               </div>
               <div className="flex items-center gap-2">

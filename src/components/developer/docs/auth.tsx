@@ -47,7 +47,7 @@ const APIDocumentation = () => {
     </div>
   );
 
-  const curlExample = `curl -X POST "https://fintrackit.my.id/v1/auth/token" \\
+  const curlExample = `curl -X POST "https://api.fintrackit.my.id/v1/auth/token" \\
 -H "X-API-Key: your_api_key_here"`;
 
   const responseExample = `{
@@ -79,7 +79,7 @@ const APIDocumentation = () => {
         <CardContent>
           <div className="space-y-4">
             <p className="text-base font-medium">
-              Base URL: https://fintrackit.my.id/v1/auth
+              Base URL: https://api.fintrackit.my.id/v1/auth
             </p>
             <div className="space-y-2">
               <p className="font-semibold">Key Points:</p>
@@ -153,7 +153,7 @@ const APIDocumentation = () => {
               <div className="flex items-center gap-2">
                 <span className="font-medium">URL:</span>
                 <code className="bg-muted px-2 py-1 rounded">
-                  https://fintrackit.my.id/v1/auth/token
+                  https://api.fintrackit.my.id/v1/auth/token
                 </code>
               </div>
               <div className="flex items-center gap-2">
