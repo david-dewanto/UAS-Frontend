@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sidebar, SidebarHeader } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
+import { authService } from "@/lib/auth"  // Import authService
 import { ChevronDown, BarChart, LogOut, Plus, Key, BookOpen, Route, Zap } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useState } from "react"
@@ -134,10 +135,17 @@ const NavItem = ({ item, level = 0 }: NavItemProps) => {
 }
 
 export function AppSidebar() {
+  // Handle logout click
+  const handleLogout = () => {
+    authService.logout();
+  };
+
   return (
     <Sidebar>
       <SidebarHeader className="flex h-24 items-center justify-center border-b px-6">
-          <img src={logo} alt="Logo" className="h-[40px]" /> 
+          <a href="/">
+            <img src={logo} alt="Logo" className="h-[40px]" /> 
+          </a>
       </SidebarHeader>
       <ScrollArea className="flex-1">
         <div className="space-y-6 p-2">
@@ -154,7 +162,11 @@ export function AppSidebar() {
         </div>
       </ScrollArea>
       <div className="p-3 border-t">
-        <Button variant="ghost" className="w-full justify-start gap-2 text-red-500">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start gap-2 text-red-500"
+          onClick={handleLogout}  
+        >
           <LogOut className="h-4 w-4" />
           Logout
         </Button>

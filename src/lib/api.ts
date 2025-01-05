@@ -34,37 +34,16 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// Response interceptor remains the same
+// Response interceptor for authentication errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
-
-// Auth related API calls - notice we're using the full path now
-export const authApi = {
-  login: async (credentials: { username: string; password: string }) => {
-    const { data } = await api.post('/internal/auth/signin/email/', credentials);
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-    }
-    return data;
-  },
-
-  register: async (userData: { username: string; email: string; password: string }) => {
-    const { data } = await api.post('/internal/auth/register/', userData);
-    return data;
-  },
-
-  logout: () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
-};
 
 export default api;

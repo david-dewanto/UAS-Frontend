@@ -4,10 +4,16 @@ import { signInWithPopup } from "firebase/auth";
 import api from "./api";
 import { AxiosError } from "axios";
 
+// Type definitions
 export interface RegisterCredentials {
   email: string;
   password: string;
   display_name: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
 }
 
 export interface LoginResponse {
@@ -15,11 +21,6 @@ export interface LoginResponse {
   email: string;
   email_verified: boolean;
   message: string | null;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string; 
 }
 
 export interface PasswordResetRequest {
@@ -31,6 +32,7 @@ export interface PasswordResetResponse {
   message: string;
 }
 
+// Authentication service
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
@@ -47,17 +49,19 @@ export const authService = {
     }
   },
 
-  logout: () => {
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+  register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
+    try {
+      const { data } = await api.post<LoginResponse>("/internal/auth/signup/email/", credentials);
+      return data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        throw new Error(error.response.data.detail || "Registration failed");
+      }
+      throw new Error("Registration failed");
+    }
   },
 
-  getCurrentUser: (): LoginResponse | null => {
-    const user = localStorage.getItem("user");
-    return user ? JSON.parse(user) : null;
-  },
-
-  async signInWithGoogle(): Promise<LoginResponse> {
+  signInWithGoogle: async (): Promise<LoginResponse> => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
@@ -78,18 +82,6 @@ export const authService = {
     }
   },
 
-  register: async (credentials: RegisterCredentials): Promise<LoginResponse> => {
-    try {
-      const { data } = await api.post<LoginResponse>("/internal/auth/signup/email/", credentials);
-      return data;
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        throw new Error(error.response.data.detail || "Registration failed");
-      }
-      throw new Error("Registration failed");
-    }
-  },
-  
   resetPassword: async (email: string): Promise<PasswordResetResponse> => {
     try {
       const { data } = await api.post<PasswordResetResponse>("/internal/auth/reset-password/", {
@@ -106,4 +98,14 @@ export const authService = {
       throw new Error("Failed to send reset email");
     }
   },
+
+  logout: () => {
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  },
+
+  getCurrentUser: (): LoginResponse | null => {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  }
 };
