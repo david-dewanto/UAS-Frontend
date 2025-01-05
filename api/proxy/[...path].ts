@@ -10,7 +10,7 @@ const handler = async function(req: Request) {
   // Get the path from the URL
   const url = new URL(req.url)
   const pathSegments = url.pathname
-    .replace('/api/proxy/', '') // Remove the base path
+    .replace('/api/proxy/', '') 
     .split('/')
     .filter(Boolean)
 
