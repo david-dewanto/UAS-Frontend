@@ -118,7 +118,7 @@ const APIDocumentation = () => {
                 <tr className="border-t">
                   <td className="p-4">
                     <a href="#token-endpoint" className="text-primary hover:underline font-medium">
-                      /auth/token
+                      /token
                     </a>
                   </td>
                   <td className="p-4">
