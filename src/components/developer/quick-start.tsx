@@ -70,9 +70,8 @@ const QuickStart = () => {
 
   const authTokenResponseSnippet = `{
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "token_type": "bearer",
-  "expires_in": 3600
-}`;
+  "token_type": "bearer"
+  }`;
 
   const secureEndpointSnippet = `curl -X GET "https://api.fintrackit.my.id/v1/secure/stocks" \\
 -H "Authorization: Bearer your_access_token_here"`;

@@ -51,7 +51,7 @@ const APIDocumentation = () => {
 -H "X-API-Key: your_api_key_here"`;
 
   const responseExample = `{
-    "access_token": "token_response",
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
     "token_type": "bearer"
 }`;
 
