@@ -1,5 +1,3 @@
-import internal from "stream"
-
 export const config = {
   runtime: 'edge',
   regions: ['sin1'],
