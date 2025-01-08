@@ -31,9 +31,6 @@ const LandingPage = () => {
             <img src={logo} alt="Logo" className="h-12 w-auto" />
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-lg">
-              About
-            </Button>
             <Button asChild className="text-lg">
               <Link to="/login">Sign In</Link>
             </Button>
