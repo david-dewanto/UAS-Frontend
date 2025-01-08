@@ -1,3 +1,5 @@
+import internal from "stream"
+
 export const config = {
   runtime: 'edge',
   regions: ['sin1'],
@@ -33,7 +35,7 @@ const handler = async function(req: Request) {
     const targetUrl = `${backendUrl}/${fullPath}`
 
     console.log('Proxying to:', targetUrl)
-
+    console.log(internalApiKey)
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: {
