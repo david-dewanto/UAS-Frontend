@@ -1,5 +1,6 @@
 // src/App.tsx
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Outlet } from 'react-router-dom'
+import InvestmentsDashboardPage from './pages/InvestmentDashboardPage'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -20,7 +21,9 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/dashboard" element={<DashboardPage />}>
-        <Route path="investments" element={<div>Investment Monitoring (Coming Soon)</div>} />
+        <Route path="investments" element={<Outlet />}>  {/* Changed this line */}
+          <Route path="dashboard" element={<InvestmentsDashboardPage />} />
+        </Route>
         <Route path="developer">
           <Route index element={<div>Developer Dashboard</div>} />
           <Route path="quick-start" element={<QuickStart />} />

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sidebar, SidebarHeader } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-import { authService } from "@/lib/auth"  // Import authService
+import { authService } from "@/lib/auth"  
 import { ChevronDown, BarChart, LogOut, Plus, Key, BookOpen, Route, Zap } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useState } from "react"
@@ -27,13 +27,13 @@ const navSections: NavSection[] = [
     items: [
       { 
         name: "Dashboard", 
-        path: "/dashboard/investments/",
+        path: "/dashboard/investments/dashboard",
         icon: <BarChart className="h-4 w-4" />,
         defaultOpen: true
       },
       { 
         name: "Add Investment", 
-        path: "/dashboard/investments",
+        path: "/dashboard/investments/add-investment",
         icon: <Plus className="h-4 w-4" />,
         defaultOpen: true
       }

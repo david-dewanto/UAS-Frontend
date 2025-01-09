@@ -46,7 +46,10 @@ export default function DashboardPage() {
       docs: { label: "Documentation" },
       "quick-start": { label: "Quick Start" },
       auth: { label: "Authentication", parent: "docs" },
-      email: {label: "Email", parent: "docs"}
+      email: {label: "Email Provider", parent: "docs"},
+      companies: {label:"Companies Information", parent: "docs"},
+      stocks: {label:"Individual Stocks", parent: "docs"},
+      portfolio: {label:"Portfolio Analysis", parent:"docs"}
     };
 
     // If we're in /docs/auth, return both Documentation and Authentication
@@ -60,7 +63,28 @@ export default function DashboardPage() {
     if (pathSegments.includes('docs') && pathSegments.includes('email')) {
       return [
         { label: "Documentation", path: "/dashboard/developer/docs", clickable: false },
-        { label: "Email", path: "/dashboard/developer/docs/email" }
+        { label: "Email Provider", path: "/dashboard/developer/docs/email" }
+      ];
+    }
+
+    if (pathSegments.includes('docs') && pathSegments.includes('companies')) {
+      return [
+        { label: "Documentation", path: "/dashboard/developer/docs", clickable: false },
+        { label: "Companies Information", path: "/dashboard/developer/docs/companies" }
+      ];
+    }
+
+    if (pathSegments.includes('docs') && pathSegments.includes('stocks')) {
+      return [
+        { label: "Documentation", path: "/dashboard/developer/docs", clickable: false },
+        { label: "Individual Stocks", path: "/dashboard/developer/docs/stocks" }
+      ];
+    }
+
+    if (pathSegments.includes('docs') && pathSegments.includes('portfolio')) {
+      return [
+        { label: "Documentation", path: "/dashboard/developer/docs", clickable: false },
+        { label: "Portfolio Analysis", path: "/dashboard/developer/docs/portfolio" }
       ];
     }
 
