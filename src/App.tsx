@@ -7,6 +7,9 @@ import DashboardPage from './pages/DashboardPage'
 import APIKeys from './components/developer/api-keys'
 import AuthDocumentation from './components/developer/docs/auth'
 import EmailDocumentation from './components/developer/docs/email'
+import CompaniesDocumentation from './components/developer/docs/companies'
+import IndividualStocksDocumentation from './components/developer/docs/individual_stocks'
+import PortfolioDocumentation from './components/developer/docs/portfolio'
 import QuickStart from './components/developer/quick-start'
 import './App.css'
 
@@ -26,6 +29,9 @@ function App() {
             <Route index element={<div>API Documentation</div>} />
             <Route path="auth" element={<AuthDocumentation />} />
             <Route path="email" element={<EmailDocumentation />} />
+            <Route path="companies" element={<CompaniesDocumentation />} />
+            <Route path="stocks" element={<IndividualStocksDocumentation />} />
+            <Route path="portfolio" element={<PortfolioDocumentation />} />
           </Route>
         </Route>
       </Route>

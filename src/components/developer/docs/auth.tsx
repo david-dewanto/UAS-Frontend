@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Key, Copy, Check, Lock } from "lucide-react";
+import { ListChecks, Copy, Check, MapPin, Key } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardHeader,
@@ -59,7 +60,7 @@ const APIDocumentation = () => {
     <div className="space-y-8">
       {/* Title Section */}
       <div className="border-b pb-6">
-        <h1 className="text-4xl font-bold tracking-tight">Authentication Services</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Authentication Endpoints</h1>
         <p className="text-xl text-muted-foreground mt-2">
           Complete guide to authenticate and access API endpoints
         </p>
@@ -69,7 +70,7 @@ const APIDocumentation = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Lock className="h-6 w-6" />
+            <Key className="h-6 w-6" />
             Endpoint Type: Authentication
           </CardTitle>
           <CardDescription className="text-base">
@@ -89,6 +90,11 @@ const APIDocumentation = () => {
                 <li>Used to obtain access tokens for secure endpoint access</li>
               </ul>
             </div>
+            <div className="mt-4">
+              <p className="text-base">
+                <span className="font-semibold">Rate Limits:</span> Unlimited
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -97,7 +103,7 @@ const APIDocumentation = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Key className="h-6 w-6" />
+            <ListChecks className="h-6 w-6" />
             Available Services
           </CardTitle>
           <CardDescription className="text-base">
@@ -105,6 +111,11 @@ const APIDocumentation = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert className="mb-6 bg-orange-100 border-orange-200">
+            <AlertDescription className="text-foreground">
+              Click on any endpoint to jump directly to its detailed documentation section
+            </AlertDescription>
+          </Alert>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-muted">
@@ -138,7 +149,7 @@ const APIDocumentation = () => {
       <Card id="token-endpoint">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Key className="h-6 w-6" />
+            <MapPin className="h-6 w-6" />
             Token Generation Service
           </CardTitle>
           <CardDescription className="text-base">

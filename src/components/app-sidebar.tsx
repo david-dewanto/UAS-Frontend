@@ -63,8 +63,23 @@ const navSections: NavSection[] = [
             icon: <Route className="h-4 w-4" />
           },
           {
-            name: "Email Service",
+            name: "Companies Information",
+            path: "/dashboard/developer/docs/companies",
+            icon: <Route className="h-4 w-4" />
+          },
+          {
+            name: "Email Provider",
             path: "/dashboard/developer/docs/email",
+            icon: <Route className="h-4 w-4" />
+          },
+          {
+            name: "Individual Stocks",
+            path: "/dashboard/developer/docs/stocks",
+            icon: <Route className="h-4 w-4" />
+          },
+          {
+            name: "Portfolio Analysis",
+            path: "/dashboard/developer/docs/portfolio",
             icon: <Route className="h-4 w-4" />
           }
         ]

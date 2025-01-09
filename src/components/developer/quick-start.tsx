@@ -9,7 +9,8 @@ import {
   BookOpen,
   ShieldCheck,
   Users,
-  Workflow
+  Workflow,
+  Timer
 } from "lucide-react";
 import {
   Card,
@@ -123,6 +124,11 @@ const makeSecureRequest = async () => {
   return data;
 };`;
 
+  const rateLimitErrorSnippet = `{
+  "status_code": 429,
+  "detail": "Rate limit exceeded. Please try again later. (150 request / hour for Public Endpoints)"
+}`;
+
   return (
     <div className="space-y-8">
       <div className="border-b pb-6">
@@ -178,6 +184,11 @@ const makeSecureRequest = async () => {
               />
             </div>
           </div>
+          <Alert className="border-red-200 bg-red-50 mt-4">
+            <AlertDescription className="text-red-500">
+              Do not include Authorization Bearer token for public endpoints. Use Bearer tokens only for accessing secure endpoints, not API keys.
+            </AlertDescription>
+          </Alert>
         </CardContent>
       </Card>
 
@@ -267,6 +278,52 @@ const makeSecureRequest = async () => {
               />
             </TabsContent>
           </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Rate Limits Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Timer className="h-6 w-6" />
+            Rate Limits
+          </CardTitle>
+          <CardDescription className="text-base">
+            Understanding API rate limits and handling rate-limited requests
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Request Limits</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="p-4 bg-muted rounded-lg">
+                <h4 className="text-lg font-semibold mb-2">Public Endpoints</h4>
+                <p className="text-base">Maximum 150 requests per hour</p>
+              </div>
+              <div className="p-4 bg-muted rounded-lg">
+                <h4 className="text-lg font-semibold mb-2">Secure Endpoints</h4>
+                <p className="text-base">Maximum 75 requests per hour</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Rate Limit Response</h3>
+              <p className="text-base">
+                When rate limit is exceeded, the API will respond with a 429 status code:
+              </p>
+              <CodeSnippet
+                code={rateLimitErrorSnippet}
+                language="json"
+                snippetId="rate-limit-error"
+              />
+            </div>
+
+            <Alert className="border-red-200 bg-red-50">
+              <AlertDescription className="text-red-500">
+                You should implement proper rate limit handling in your application to ensure smooth operation. Consider implementing retry mechanisms with exponential backoff when rate limits are hit.
+              </AlertDescription>
+            </Alert>
+          </div>
         </CardContent>
       </Card>
 

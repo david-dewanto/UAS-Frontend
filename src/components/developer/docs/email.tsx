@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Mail, Copy, Check, ShieldCheck } from "lucide-react";
+import { ListChecks, Copy, Check, ShieldCheck, MapPin } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardHeader,
@@ -65,7 +66,9 @@ const EmailDocumentation = () => {
     <div className="space-y-8">
       {/* Title Section */}
       <div className="border-b pb-6">
-        <h1 className="text-4xl font-bold tracking-tight">Email Services</h1>
+        <h1 className="text-4xl font-bold tracking-tight">
+          Email Provider Endpoints
+        </h1>
         <p className="text-xl text-muted-foreground mt-2">
           Complete guide to using our email sending API endpoints
         </p>
@@ -79,7 +82,8 @@ const EmailDocumentation = () => {
             Endpoint Type: Secure
           </CardTitle>
           <CardDescription className="text-base">
-            Email services require authentication to maintain security and prevent misuse
+            Email services require authentication to maintain security and
+            prevent misuse
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -90,10 +94,19 @@ const EmailDocumentation = () => {
             <div className="space-y-2">
               <p className="font-semibold">Key Points:</p>
               <ul className="list-disc list-inside space-y-2 text-base">
-                <li>All endpoints require a valid Bearer token in the Authorization header</li>
+                <li>
+                  All endpoints require a valid Bearer token in the
+                  Authorization header
+                </li>
                 <li>Requests must include proper JSON payloads</li>
                 <li>Response includes status and detailed messages</li>
               </ul>
+            </div>
+            <div className="mt-4">
+              <p className="text-base">
+                <span className="font-semibold">Rate Limits:</span> 75 requests
+                / hour
+              </p>
             </div>
           </div>
         </CardContent>
@@ -103,7 +116,7 @@ const EmailDocumentation = () => {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Mail className="h-6 w-6" />
+            <ListChecks className="h-6 w-6" />
             Available Services
           </CardTitle>
           <CardDescription className="text-base">
@@ -111,6 +124,12 @@ const EmailDocumentation = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Alert className="mb-6 bg-orange-100 border-orange-200">
+            <AlertDescription className="text-foreground">
+              Click on any endpoint to jump directly to its detailed
+              documentation section
+            </AlertDescription>
+          </Alert>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-muted">
@@ -123,7 +142,10 @@ const EmailDocumentation = () => {
               <tbody>
                 <tr className="border-t">
                   <td className="p-4">
-                    <a href="#send-email-endpoint" className="text-primary hover:underline font-medium">
+                    <a
+                      href="#send-email-endpoint"
+                      className="text-primary hover:underline font-medium"
+                    >
                       /send-email
                     </a>
                   </td>
@@ -132,7 +154,9 @@ const EmailDocumentation = () => {
                       POST
                     </span>
                   </td>
-                  <td className="p-4">Send an email using the server's Postfix service</td>
+                  <td className="p-4">
+                    Send an email using the server's Postfix service
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -144,7 +168,7 @@ const EmailDocumentation = () => {
       <Card id="send-email-endpoint">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Mail className="h-6 w-6" />
+            <MapPin className="h-6 w-6" />
             Send Email Service
           </CardTitle>
           <CardDescription className="text-base">
@@ -184,12 +208,18 @@ const EmailDocumentation = () => {
               </thead>
               <tbody>
                 <tr className="border-t">
-                  <td className="p-2"><code>Authorization</code></td>
+                  <td className="p-2">
+                    <code>Authorization</code>
+                  </td>
                   <td className="p-2">Yes</td>
-                  <td className="p-2">Bearer token obtained from authentication service</td>
+                  <td className="p-2">
+                    Bearer token obtained from authentication service
+                  </td>
                 </tr>
                 <tr className="border-t">
-                  <td className="p-2"><code>Content-Type</code></td>
+                  <td className="p-2">
+                    <code>Content-Type</code>
+                  </td>
                   <td className="p-2">Yes</td>
                   <td className="p-2">Must be application/json</td>
                 </tr>
@@ -211,19 +241,25 @@ const EmailDocumentation = () => {
               </thead>
               <tbody>
                 <tr className="border-t">
-                  <td className="p-2"><code>recipient_email</code></td>
+                  <td className="p-2">
+                    <code>recipient_email</code>
+                  </td>
                   <td className="p-2">string</td>
                   <td className="p-2">Yes</td>
                   <td className="p-2">Email address of the recipient</td>
                 </tr>
                 <tr className="border-t">
-                  <td className="p-2"><code>subject</code></td>
+                  <td className="p-2">
+                    <code>subject</code>
+                  </td>
                   <td className="p-2">string</td>
                   <td className="p-2">Yes</td>
                   <td className="p-2">Subject line of the email</td>
                 </tr>
                 <tr className="border-t">
-                  <td className="p-2"><code>body</code></td>
+                  <td className="p-2">
+                    <code>body</code>
+                  </td>
                   <td className="p-2">string</td>
                   <td className="p-2">Yes</td>
                   <td className="p-2">HTML content of the email</td>
