@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -12,20 +12,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { Transaction, investmentService } from '@/lib/investment';
+import { useStockPrices } from '@/hooks/useStockPrices';
 
 interface CurrentHoldingsProps {
   transactions: Transaction[];
-}
-
-interface HoldingData {
-  stockCode: string;
-  quantity: number;
-  averageCost: number;
-  currentPrice: number;
-  totalValue: number;
-  totalCost: number;
-  gainLoss: number;
-  gainLossPercentage: number;
 }
 
 function formatCurrency(value: number): string {
@@ -42,97 +32,73 @@ function formatPercent(value: number): string {
 }
 
 export function CurrentHoldings({ transactions }: CurrentHoldingsProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [holdings, setHoldings] = useState<HoldingData[]>([]);
+  // Get dates for fetching recent prices
+  const today = useMemo(() => new Date(), []);
+  const lastWeek = useMemo(() => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 7);
+    return date;
+  }, [today]);
 
-  // Calculate average cost and total cost for a stock
-  const calculateCosts = (stockCode: string, quantity: number) => {
-    const stockTransactions = transactions.filter(tx => tx.stock_code === stockCode);
-    let totalCost = 0;
-    let totalQuantity = 0;
+  // Fetch stock prices using the hook
+  const { isLoading: isPricesLoading, error: pricesError, stockPrices } = useStockPrices(
+    transactions,
+    lastWeek,
+    today
+  );
 
-    for (const tx of stockTransactions) {
-      if (tx.transaction_type === 'buy') {
-        totalCost += tx.total_value;
-        totalQuantity += tx.quantity;
-      } else {
-        // For sells, we'll use FIFO to reduce the cost basis
-        const costPerShare = totalCost / totalQuantity;
-        totalCost -= costPerShare * tx.quantity;
-        totalQuantity -= tx.quantity;
-      }
+  // Calculate holdings data
+  const holdings = useMemo(() => {
+    if (isPricesLoading || pricesError || !Object.keys(stockPrices).length) {
+      return [];
     }
 
-    // Calculate the final average cost for current holdings
-    const averageCost = totalCost / quantity;
-    return { averageCost, totalCost };
-  };
+    const currentHoldings = investmentService.calculateCurrentHoldings(transactions);
 
-  useEffect(() => {
-    const fetchHoldings = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+    return Object.entries(currentHoldings).map(([stockCode, quantity]) => {
+      // Get latest price
+      const priceData = stockPrices[stockCode]?.prices || [];
+      const currentPrice = priceData[priceData.length - 1]?.closing_price || 0;
 
-        const currentHoldings = investmentService.calculateCurrentHoldings(transactions);
-        
-        // Get latest prices and calculate metrics
-        const today = new Date();
-        const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        const holdingsData = await Promise.all(
-          Object.entries(currentHoldings).map(async ([stockCode, quantity]) => {
-            try {
-              const priceData = await investmentService.getStockPrice(
-                stockCode,
-                lastWeek,
-                today
-              );
-              
-              const currentPrice = priceData.prices[priceData.prices.length - 1].closing_price;
-              const { averageCost, totalCost } = calculateCosts(stockCode, quantity);
-              const totalValue = currentPrice * quantity;
-              const gainLoss = totalValue - totalCost;
-              const gainLossPercentage = (gainLoss / totalCost) * 100;
+      // Calculate costs
+      const stockTransactions = transactions.filter(tx => tx.stock_code === stockCode);
+      let totalCost = 0;
+      let totalQuantity = 0;
 
-              return {
-                stockCode,
-                quantity,
-                averageCost,
-                currentPrice,
-                totalValue,
-                totalCost,
-                gainLoss,
-                gainLossPercentage,
-              };
-            } catch (error) {
-              console.error(`Error processing ${stockCode}:`, error);
-              throw error;
-            }
-          })
-        );
-
-        // Sort by total value descending
-        setHoldings(holdingsData.sort((a, b) => b.totalValue - a.totalValue));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch holdings data');
-      } finally {
-        setIsLoading(false);
+      for (const tx of stockTransactions) {
+        if (tx.transaction_type === 'buy') {
+          totalCost += tx.total_value;
+          totalQuantity += tx.quantity;
+        } else {
+          // For sells, use FIFO to reduce the cost basis
+          const costPerShare = totalCost / totalQuantity;
+          totalCost -= costPerShare * tx.quantity;
+          totalQuantity -= tx.quantity;
+        }
       }
-    };
 
-    if (transactions.length > 0) {
-      fetchHoldings();
-    } else {
-      setIsLoading(false);
-    }
-  }, [transactions]);
+      const totalValue = currentPrice * quantity;
+      const averageCost = totalCost / quantity;
+      const gainLoss = totalValue - totalCost;
+      const gainLossPercentage = (gainLoss / totalCost) * 100;
 
-  if (error) {
+      return {
+        stockCode,
+        quantity,
+        averageCost,
+        currentPrice,
+        totalValue,
+        totalCost,
+        gainLoss,
+        gainLossPercentage,
+      };
+    }).sort((a, b) => a.stockCode.localeCompare(b.stockCode)); // Sort alphabetically by stock code
+  }, [transactions, stockPrices, isPricesLoading, pricesError]);
+
+  if (pricesError) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>{pricesError}</AlertDescription>
       </Alert>
     );
   }
@@ -151,7 +117,7 @@ export function CurrentHoldings({ transactions }: CurrentHoldingsProps) {
         <CardTitle>Current Holdings</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isPricesLoading ? (
           <LoadingSkeleton />
         ) : holdings.length === 0 ? (
           <p className="text-muted-foreground text-center py-4">

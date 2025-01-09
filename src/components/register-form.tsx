@@ -152,7 +152,7 @@ export function RegisterForm({
 
       // Navigate to dashboard after successful registration
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/dashboard/investments/dashboard");
       }, 1500);
     } catch (error) {
       setAlert({

@@ -48,7 +48,7 @@ export function LoginForm({
 
       // Navigate to dashboard after successful login
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/dashboard/investments/dashboard");
       }, 1500);
     } catch (error) {
       setAlert({
@@ -131,7 +131,7 @@ export function LoginForm({
       });
 
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/dashboard/investments/dashboard");
       }, 1500);
     } catch (error) {
       setAlert({

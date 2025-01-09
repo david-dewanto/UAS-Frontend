@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -7,9 +7,15 @@ import {
   PortfolioReturnResponse,
   investmentService 
 } from '@/lib/investment';
+import { useStockPrices } from '@/hooks/useStockPrices';
 
 interface PortfolioSummaryProps {
   transactions: Transaction[];
+}
+
+interface PortfolioMetrics {
+  totalValue: number;
+  returns: PortfolioReturnResponse | null;
 }
 
 function formatPercent(value: number): string {
@@ -26,47 +32,56 @@ function formatCurrency(value: number): string {
 }
 
 export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [metrics, setMetrics] = useState<PortfolioMetrics>({
+    totalValue: 0,
+    returns: null
+  });
+  const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [returns, setReturns] = useState<PortfolioReturnResponse | null>(null);
-  const [totalValue, setTotalValue] = useState<number>(0);
 
+  // Get dates for fetching recent prices
+  const today = useMemo(() => new Date(), []);
+  const lastWeek = useMemo(() => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 7);
+    return date;
+  }, [today]);
+
+  // Fetch stock prices using the hook
+  const { isLoading: isPricesLoading, error: pricesError, stockPrices } = useStockPrices(
+    transactions,
+    lastWeek,
+    today
+  );
+
+  // Calculate portfolio metrics
   useEffect(() => {
     const calculateMetrics = async () => {
+      if (isPricesLoading || pricesError || !Object.keys(stockPrices).length) {
+        return;
+      }
+
       try {
-        setIsLoading(true);
+        setIsCalculating(true);
         setError(null);
 
         // Get current holdings
         const holdings = investmentService.calculateCurrentHoldings(transactions);
-        
-        // Get latest prices for holdings
-        const today = new Date();
-        const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        
-        let portfolioValue = 0;
-        
-        // Calculate current portfolio value
-        await Promise.all(
-          Object.entries(holdings).map(async ([stockCode, quantity]) => {
-            const priceData = await investmentService.getStockPrice(
-              stockCode,
-              lastWeek,
-              today
-            );
-            
-            if (priceData.prices.length > 0) {
-              const latestPrice = priceData.prices[priceData.prices.length - 1].closing_price;
-              portfolioValue += latestPrice * quantity;
-            }
-          })
-        );
-        
-        setTotalValue(portfolioValue);
 
-        // Calculate returns
+        // Calculate total portfolio value
+        let portfolioValue = 0;
+        Object.entries(holdings).forEach(([stockCode, quantity]) => {
+          const priceData = stockPrices[stockCode]?.prices || [];
+          if (priceData.length > 0) {
+            const latestPrice = priceData[priceData.length - 1].closing_price;
+            portfolioValue += latestPrice * quantity;
+          }
+        });
+
+        // Calculate returns if there are transactions
+        let returnData = null;
         if (transactions.length > 0) {
-          const returnData = await investmentService.calculateReturns(
+          returnData = await investmentService.calculateReturns(
             transactions.map(tx => ({
               stock_code: tx.stock_code,
               transaction_type: tx.transaction_type,
@@ -76,30 +91,31 @@ export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
               transaction_date: tx.transaction_date,
             }))
           );
-          
-          setReturns(returnData);
         }
+
+        setMetrics({
+          totalValue: portfolioValue,
+          returns: returnData
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to calculate portfolio metrics');
       } finally {
-        setIsLoading(false);
+        setIsCalculating(false);
       }
     };
 
-    if (transactions.length > 0) {
-      calculateMetrics();
-    } else {
-      setIsLoading(false);
-    }
-  }, [transactions]);
+    calculateMetrics();
+  }, [transactions, stockPrices, isPricesLoading, pricesError]);
 
-  if (error) {
+  if (pricesError || error) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>{pricesError || error}</AlertDescription>
       </Alert>
     );
   }
+
+  const isLoading = isPricesLoading || isCalculating;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -113,7 +129,9 @@ export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
           {isLoading ? (
             <Skeleton className="h-7 w-[120px]" />
           ) : (
-            <div className="text-2xl font-bold">{formatCurrency(totalValue)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(metrics.totalValue)}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -127,9 +145,9 @@ export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-7 w-[90px]" />
-          ) : returns ? (
+          ) : metrics.returns ? (
             <div className="text-2xl font-bold">
-              {formatPercent(returns.portfolio_twr)}
+              {formatPercent(metrics.returns.portfolio_twr)}
             </div>
           ) : (
             <div className="text-muted-foreground">No data</div>
@@ -146,9 +164,9 @@ export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-7 w-[90px]" />
-          ) : returns ? (
+          ) : metrics.returns ? (
             <div className="text-2xl font-bold">
-              {formatPercent(returns.portfolio_mwr)}
+              {formatPercent(metrics.returns.portfolio_mwr)}
             </div>
           ) : (
             <div className="text-muted-foreground">No data</div>
@@ -165,10 +183,10 @@ export function PortfolioSummary({ transactions }: PortfolioSummaryProps) {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-7 w-[90px]" />
-          ) : returns ? (
+          ) : metrics.returns ? (
             <div className="text-2xl font-bold">
               {Math.ceil(
-                (returns.end_date.getTime() - returns.start_date.getTime()) / 
+                (metrics.returns.end_date.getTime() - metrics.returns.start_date.getTime()) / 
                 (1000 * 60 * 60 * 24 * 30)
               )} months
             </div>

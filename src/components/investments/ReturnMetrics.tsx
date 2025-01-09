@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -16,6 +16,7 @@ import {
   AlertTriangleIcon
 } from 'lucide-react';
 import { Transaction, investmentService } from '@/lib/investment';
+import { useStockPrices } from '@/hooks/useStockPrices';
 
 interface ReturnMetricsProps {
   transactions: Transaction[];
@@ -39,14 +40,34 @@ function formatDecimal(value: number): string {
 }
 
 export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [metrics, setMetrics] = useState<StockMetrics[]>([]);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Get dates for price data
+  const today = useMemo(() => new Date(), []);
+  const lastWeek = useMemo(() => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 7);
+    return date;
+  }, [today]);
+
+  // Fetch stock prices using the hook
+  const { isLoading: isPricesLoading, error: pricesError, stockPrices } = useStockPrices(
+    transactions,
+    lastWeek,
+    today
+  );
+
+  // Calculate metrics
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const calculateMetrics = async () => {
+      if (isPricesLoading || pricesError || !Object.keys(stockPrices).length) {
+        return;
+      }
+
       try {
-        setIsLoading(true);
+        setIsCalculating(true);
         setError(null);
 
         if (transactions.length === 0) {
@@ -97,36 +118,36 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
           })
         );
 
-        // Sort by TWR descending
-        setMetrics(stockMetrics.sort((a, b) => b.twr - a.twr));
+        // Sort alphabetically by stock code
+        setMetrics(stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode)));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch return metrics');
+        setError(err instanceof Error ? err.message : 'Failed to calculate return metrics');
       } finally {
-        setIsLoading(false);
+        setIsCalculating(false);
       }
     };
 
-    fetchMetrics();
-  }, [transactions]);
+    calculateMetrics();
+  }, [transactions, stockPrices, isPricesLoading, pricesError]);
 
   const renderRiskIndicator = (sharpeRatio: number) => {
     if (sharpeRatio >= 1) {
       return (
-        <div className="flex items-center gap-1 text-green-500">
+        <div className="flex items-center gap-1 text-green-500 ml-auto w-fit">
           <ShieldCheckIcon className="h-4 w-4" />
           <span>Good</span>
         </div>
       );
     } else if (sharpeRatio >= 0) {
       return (
-        <div className="flex items-center gap-1 text-yellow-500">
+        <div className="flex items-center gap-1 text-yellow-500 ml-auto w-fit">
           <ChartBarIcon className="h-4 w-4" />
           <span>Fair</span>
         </div>
       );
     } else {
       return (
-        <div className="flex items-center gap-1 text-red-500">
+        <div className="flex items-center gap-1 text-red-500 ml-auto w-fit">
           <AlertTriangleIcon className="h-4 w-4" />
           <span>Poor</span>
         </div>
@@ -134,13 +155,15 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
     }
   };
 
-  if (error) {
+  if (pricesError || error) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{error}</AlertDescription>
+        <AlertDescription>{pricesError || error}</AlertDescription>
       </Alert>
     );
   }
+
+  const isLoading = isPricesLoading || isCalculating;
 
   return (
     <Card>
@@ -154,7 +177,7 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
             </div>
             <div className="flex items-center gap-1">
               <ChartBarIcon className="h-4 w-4 text-yellow-500" />
-              <span>0 &le; Sharpe &lt; 1</span>
+              <span>0 ≤ Sharpe &lt; 1</span>
             </div>
             <div className="flex items-center gap-1">
               <AlertTriangleIcon className="h-4 w-4 text-red-500" />
@@ -179,13 +202,13 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Stock</TableHead>
-                  <TableHead className="text-right">TWR</TableHead>
-                  <TableHead className="text-right">MWR</TableHead>
-                  <TableHead className="text-right">Avg. Return</TableHead>
-                  <TableHead className="text-right">Volatility</TableHead>
-                  <TableHead className="text-right">Sharpe Ratio</TableHead>
-                  <TableHead>Risk Level</TableHead>
+                  <TableHead className="w-[100px]">Stock</TableHead>
+                  <TableHead className="text-right w-[80px]">TWR</TableHead>
+                  <TableHead className="text-right w-[80px]">MWR</TableHead>
+                  <TableHead className="text-right w-[120px]">Avg. Return</TableHead>
+                  <TableHead className="text-right w-[100px]">Volatility</TableHead>
+                  <TableHead className="text-right w-[120px]">Sharpe Ratio</TableHead>
+                  <TableHead className="text-right w-[100px]">Risk Level</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -215,7 +238,7 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
                     <TableCell className="text-right">
                       {formatDecimal(stock.sharpeRatio)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       {renderRiskIndicator(stock.sharpeRatio)}
                     </TableCell>
                   </TableRow>
