@@ -4,6 +4,7 @@ import InvestmentsDashboardPage from "./pages/InvestmentDashboardPage";
 import { Toaster } from "@/components/ui/toaster";
 import AddInvestmentPage from "./pages/AddInvestmentPage";
 import LandingPage from "./pages/LandingPage";
+import IndividualStockPage from "./pages/IndividualStockPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -27,6 +28,7 @@ function App() {
           <Route path="investments" element={<Outlet />}>
             <Route path="dashboard" element={<InvestmentsDashboardPage />} />
             <Route path="add-investment" element={<AddInvestmentPage />} />
+            <Route path="stocks-analysis" element={<IndividualStockPage />} />
           </Route>
           <Route path="developer">
             <Route index element={<div>Developer Dashboard</div>} />

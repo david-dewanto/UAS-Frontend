@@ -49,7 +49,9 @@ export default function DashboardPage() {
       email: {label: "Email Provider", parent: "docs"},
       companies: {label:"Companies Information", parent: "docs"},
       stocks: {label:"Individual Stocks", parent: "docs"},
-      portfolio: {label:"Portfolio Analysis", parent:"docs"}
+      portfolio: {label:"Portfolio Analysis", parent:"docs"},
+      "add-investment" : {label:"Add Investment", parent: "docs"},
+      "stocks-analysis" : {label:"Stocks Analysis", parent: " docs"}
     };
 
     // If we're in /docs/auth, return both Documentation and Authentication

@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sidebar, SidebarHeader } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { authService } from "@/lib/auth"  
-import { ChevronDown, BarChart, LogOut, Plus, Key, BookOpen, Route, Zap } from "lucide-react"
+import { ChevronDown, BarChart, LogOut, Plus, Key, BookOpen, Route, Zap, ChartCandlestick } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import { useState } from "react"
 import logo from '@/assets/logo.svg'
@@ -35,6 +35,12 @@ const navSections: NavSection[] = [
         name: "Add Investment", 
         path: "/dashboard/investments/add-investment",
         icon: <Plus className="h-4 w-4" />,
+        defaultOpen: true
+      },
+      { 
+        name: "Stocks Analysis", 
+        path: "/dashboard/investments/stocks-analysis",
+        icon: <ChartCandlestick className="h-4 w-4" />,
         defaultOpen: true
       }
     ]
