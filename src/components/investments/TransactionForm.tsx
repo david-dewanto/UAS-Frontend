@@ -202,8 +202,8 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
 
       toast({
         variant: "destructive",
-        title: "Error",
-        description: errorMessage,
+        title: "Invalid Trading Date",
+        description: "Please Enter a Valid Trading Date",
       });
 
       onError?.(errorMessage);

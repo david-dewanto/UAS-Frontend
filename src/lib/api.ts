@@ -2,7 +2,7 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 import { authService } from './auth';
 
-const API_URL = '/api/proxy' // DEVELOPMENT SERVER http://127.0.0.1:8000/v1
+const API_URL = '/api/proxy' // DEVELOPMENT SERVER /api/proxy
 
 const api = axios.create({
   baseURL: API_URL,  

@@ -49,8 +49,8 @@ export default function AddInvestmentPage() {
   };
 
   // Handle errors
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage);
+  const handleError = () => {
+    setError("Please Enter a Valid Trading Date");
     // Clear error after 5 seconds
     setTimeout(() => setError(null), 5000);
   };
