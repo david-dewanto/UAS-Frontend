@@ -7,7 +7,7 @@ const API_URL = '/api/proxy'
 const api = axios.create({
   baseURL: API_URL,  
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
   withCredentials: false,
 });
