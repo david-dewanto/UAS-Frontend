@@ -410,8 +410,8 @@ export default function PortfolioOptimizationPage() {
                   -{" "}
                   {formatPercent(
                     targetType === "return"
-                      ? portfolioRanges.return_range.max
-                      : portfolioRanges.volatility_range.max
+                      ? portfolioRanges.return_range.max - 0.001
+                      : portfolioRanges.volatility_range.max - 0.001
                   )}
                 </div>
               ) : (
@@ -445,8 +445,8 @@ export default function PortfolioOptimizationPage() {
                     }
                     max={
                       targetType === "return"
-                        ? portfolioRanges.return_range.max * 100
-                        : portfolioRanges.volatility_range.max * 100
+                        ? (portfolioRanges.return_range.max - 0.001) * 100
+                        : (portfolioRanges.volatility_range.max - 0.001) * 100
                     }
                     step={0.1}
                     value={[
@@ -482,8 +482,8 @@ export default function PortfolioOptimizationPage() {
                         <p className="text-foreground font-medium">
                           {formatPercent(
                             targetType === "return"
-                              ? portfolioRanges.return_range.max
-                              : portfolioRanges.volatility_range.max
+                              ? portfolioRanges.return_range.max - 0.001
+                              : portfolioRanges.volatility_range.max - 0.001
                           )}
                         </p>
                       </div>
