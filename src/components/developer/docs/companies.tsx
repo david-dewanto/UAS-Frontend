@@ -382,23 +382,6 @@ const CompaniesDocumentation = () => {
             </div>
           </div>
 
-          {/* Error Responses */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Error Responses</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="mb-2">Not Found (404):</p>
-                <CodeSnippet
-                  code={`{
-    "detail": "Symbol INVALID not found in IDX Composite"
-}`}
-                  language="json"
-                  snippetId="error-404"
-                />
-              </div>
-            </div>
-          </div>
-
           {/* Example */}
           <div>
             <h3 className="text-lg font-semibold mb-2">Example Request</h3>

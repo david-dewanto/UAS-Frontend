@@ -1,14 +1,13 @@
 // src/lib/api.ts
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000/v1'
-//'/api/proxy';  // Keep this relative // DEVELOPMENT SERVER
+const API_URL = '/api/proxy'
+//'http://127.0.0.1:8000/v1';  // Keep this relative // DEVELOPMENT SERVER
 
 const api = axios.create({
   baseURL: API_URL,  
   headers: {
     'Content-Type': 'application/json',
-    'X-API-Key': '6d04132e-abc1-4974-8b2f-d279bf7a2553-64690321-975b-4c3e-91be-7eb671802e96' // DEVELOPMENT SERVER
   },
   withCredentials: false,
 });

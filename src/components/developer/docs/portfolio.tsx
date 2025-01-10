@@ -128,12 +128,7 @@ const PortfolioDocumentation = () => {
   "calculation_date": "2024-01-09T08:30:00Z",
   "start_date": "2024-01-01T00:00:00Z",
   "end_date": "2024-01-15T00:00:00Z",
-  "stock_breakdown": {
-    "BBCA": {
-      "twr": 0.0524,
-      "mwr": 0.0489
-    }
-  }
+  "stock_breakdown": {} // Deprecated (discontinued)
 }`;
 
   return (
@@ -798,7 +793,7 @@ const PortfolioDocumentation = () => {
                       <code>stock_breakdown</code>
                     </td>
                     <td className="p-2">object</td>
-                    <td className="p-2">Per-stock return metrics</td>
+                    <td className="p-2">Deprecated (discontinued)</td>
                   </tr>
                 </tbody>
               </table>
