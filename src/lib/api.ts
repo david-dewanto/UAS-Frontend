@@ -22,14 +22,14 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   }
   
   // Development logging
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Request URL:', `${config.baseURL}${config.url}`);
-    console.log('Request config:', {
-      method: config.method,
-      headers: config.headers,
-      data: config.data
-    });
-  }
+  // if (process.env.NODE_ENV === 'development') {
+    // console.log('Request URL:', `${config.baseURL}${config.url}`);
+    // console.log('Request config:', {
+    //   method: config.method,
+    //   headers: config.headers,
+    //   data: config.data
+    // });
+  // }
   
   return config;
 });

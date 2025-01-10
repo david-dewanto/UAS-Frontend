@@ -14,12 +14,12 @@ const handler = async function(req: Request) {
     .split('/')
     .filter(Boolean)
 
-  console.log('Request details:', {
-    url: req.url,
-    method: req.method,
-    pathSegments,
-    fullPath: pathSegments.join('/')
-  })
+  // console.log('Request details:', {
+  //  url: req.url,
+  //  method: req.method,
+  //  pathSegments,
+  //  fullPath: pathSegments.join('/')
+  // })
 
   if (!internalApiKey) {
     return new Response(
@@ -32,8 +32,8 @@ const handler = async function(req: Request) {
     const fullPath = pathSegments.join('/')
     const targetUrl = `${backendUrl}/${fullPath}`
 
-    console.log('Proxying to:', targetUrl)
-    console.log(internalApiKey)
+    // console.log('Proxying to:', targetUrl)
+    // console.log(internalApiKey)
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: {
