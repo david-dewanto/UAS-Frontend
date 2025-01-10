@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronRight, ChartPie, Clock, ChartCandlestick } from "lucide-react";
 import logo from "@/assets/logo.svg";
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const LandingPage = () => {
   const chartData = [
@@ -51,7 +51,7 @@ const LandingPage = () => {
             </p>
             <div className="flex gap-4">
               <Button size="lg" className="gap-2">
-                Get Started Free
+                <Link to="/login">Get Started for Free</Link>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { type LoginResponse } from "@/lib/auth";
 import {
   Card,
   CardContent,
@@ -15,55 +16,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { X, Info, CheckCircle2 } from "lucide-react";
 import { ForgotPasswordModal } from "@/components/forgot-password-modal";
 import { authService } from "@/lib/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); 
-    e.stopPropagation();
-    setIsLoading(true);
-    setAlert(null);
-
-    try {
-      const response = await authService.signInWithGoogle();
-
-      if (!response.email_verified) {
-        setAlert({
-          show: true,
-          type: "error",
-          title: "Email not verified",
-          message: response.message || "Please verify your email address",
-        });
-        return;
-      }
-
-      setAlert({
-        show: true,
-        type: "success",
-        title: "Success",
-        message: "Logged in successfully",
-      });
-
-      // Navigate to dashboard after successful login
-      setTimeout(() => {
-        navigate("/dashboard/investments/dashboard");
-      }, 1500);
-    } catch (error) {
-      setAlert({
-        show: true,
-        type: "error",
-        title: "Error",
-        message:
-          error instanceof Error ? error.message : "Google sign-in failed",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl') || '/dashboard/investments/dashboard';
+
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState<{
     show: boolean;
@@ -78,23 +41,139 @@ export function LoginForm({
   });
 
   useEffect(() => {
+    const storedMessage = localStorage.getItem('authMessage');
+    if (storedMessage) {
+      const parsedMessage = JSON.parse(storedMessage);
+      
+      // Only show message if it's less than 5 seconds old
+      const messageAge = Date.now() - parsedMessage.timestamp;
+      if (messageAge < 5000) {
+        setAlert({
+          show: true,
+          type: parsedMessage.type,
+          title: parsedMessage.title,
+          message: parsedMessage.message
+        });
+      }
+      
+      // Always remove the message from localStorage
+      localStorage.removeItem('authMessage');
+    }
+  }, []);
+
+  const handleGoogleSignIn = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsLoading(true);
+    setAlert(null);
+  
+    try {
+      const response = await authService.signInWithGoogle();
+  
+      if (!response.email_verified) {
+        setAlert({
+          show: true,
+          type: "error",
+          title: "Email not verified",
+          message: response.message || "Please verify your email address",
+        });
+        return;
+      }
+  
+      handleSuccessfulLogin(response);
+    } catch (error) {
+      setAlert({
+        show: true,
+        type: "error",
+        title: "Error",
+        message: error instanceof Error ? error.message : "Google sign-in failed",
+      });
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
+    }
+  };
+
+  useEffect(() => {
     if (alert?.show) {
-      // Delay the visibility to ensure proper animation mounting
       requestAnimationFrame(() => {
         setIsAlertVisible(true);
       });
+  
+      if (alert.type === 'error') {
+        const timer = setTimeout(() => {
+          setIsAlertVisible(false);
+          setTimeout(() => {
+            setAlert(null);
+          }, 300);
+        }, 3000);
+  
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [alert]);
 
-      const timer = setTimeout(() => {
+  const handleSuccessfulLogin = (response: LoginResponse) => {
+  // Update global auth state
+  login(response);
+
+  // Set alert for successful login
+  setAlert({
+    show: true,
+    type: 'success',
+    title: 'Success',
+    message: 'Logged in successfully'
+  });
+};
+
+useEffect(() => {
+  let navigationTimer: NodeJS.Timeout;
+
+  if (alert?.show && alert.type === 'success') {
+    navigationTimer = setTimeout(() => {
+      setIsAlertVisible(false);
+      setTimeout(() => {
+        setAlert(null);
+        navigate(decodeURIComponent(returnUrl));
+      }, 300);
+    }, 2000);
+  }
+
+  return () => {
+    if (navigationTimer) {
+      clearTimeout(navigationTimer);
+    }
+  };
+}, [alert, navigate, returnUrl]);
+
+// Separate useEffect for alert visibility
+useEffect(() => {
+  let visibilityTimer: NodeJS.Timeout;
+  let cleanupTimer: NodeJS.Timeout;
+
+  if (alert?.show) {
+    // Show alert immediately
+    requestAnimationFrame(() => {
+      setIsAlertVisible(true);
+    });
+
+    // For error alerts only
+    if (alert.type === 'error') {
+      visibilityTimer = setTimeout(() => {
         setIsAlertVisible(false);
-        // Wait for fade out animation before removing alert from DOM
-        setTimeout(() => {
+        cleanupTimer = setTimeout(() => {
           setAlert(null);
         }, 300);
       }, 3000);
-
-      return () => clearTimeout(timer);
     }
-  }, [alert]);
+  }
+
+  return () => {
+    if (visibilityTimer) clearTimeout(visibilityTimer);
+    if (cleanupTimer) clearTimeout(cleanupTimer);
+  };
+}, [alert]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -105,45 +184,38 @@ export function LoginForm({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setAlert(null);
+  e.preventDefault();
+  setIsLoading(true);
+  setAlert(null);
 
-    try {
-      const response = await authService.login(formData);
+  try {
+    const response = await authService.login(formData);
 
-      if (!response.email_verified) {
-        setAlert({
-          show: true,
-          type: "error",
-          title: "Email not verified",
-          message:
-            response.message || "Please check your email for verification link",
-        });
-        return;
-      }
-
-      setAlert({
-        show: true,
-        type: "success",
-        title: "Success",
-        message: "Logged in successfully",
-      });
-
-      setTimeout(() => {
-        navigate("/dashboard/investments/dashboard");
-      }, 1500);
-    } catch (error) {
+    if (!response.email_verified) {
       setAlert({
         show: true,
         type: "error",
-        title: "Error",
-        message: error instanceof Error ? error.message : "Login failed",
+        title: "Email not verified",
+        message: response.message || "Please check your email for verification link",
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
-  };
+
+    handleSuccessfulLogin(response);
+  } catch (error) {
+    setAlert({
+      show: true,
+      type: "error",
+      title: "Error",
+      message: error instanceof Error ? error.message : "Login failed",
+    });
+  } finally {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+  }
+};
+  
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -153,10 +225,9 @@ export function LoginForm({
           className={cn(
             "absolute top-4 left-1/2 -translate-x-1/2 w-full max-w-[420px] shadow-lg",
             "transition-all duration-300 ease-in-out transform",
-            // Apply different styles based on alert type
             alert.type === "success"
               ? "border-green-500 bg-green-50 text-green-700"
-              : "border-red-500 bg-red-50 text-red-700", // Added error styling
+              : "border-red-500 bg-red-50 text-red-700",
             isAlertVisible
               ? "opacity-100 translate-y-0 scale-100"
               : "opacity-0 -translate-y-4 scale-95 pointer-events-none"
@@ -166,12 +237,7 @@ export function LoginForm({
           <div className="flex justify-between items-start">
             <div className="flex gap-2">
               {alert.type === "error" ? (
-                <Info
-                  className={cn(
-                    "h-4 w-4",
-                    alert.type === "error" && "text-red-700" // Added error icon color
-                  )}
-                />
+                <Info className={cn("h-4 w-4", alert.type === "error" && "text-red-700")} />
               ) : (
                 <CheckCircle2 className="h-4 w-4 text-green-700" />
               )}
@@ -207,7 +273,7 @@ export function LoginForm({
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button
-                  type = "button"
+                  type="button"
                   variant="outline"
                   className="w-full"
                   onClick={handleGoogleSignIn}

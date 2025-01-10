@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ListChecks, Copy, Check, MapPin, Key } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardHeader,
@@ -11,6 +12,15 @@ import {
 
 const APIDocumentation = () => {
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Simulate loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const copyToClipboard = async (text: string, snippetId: string) => {
     try {
@@ -55,6 +65,104 @@ const APIDocumentation = () => {
     "access_token": "eyJhbGciOiJIUzI1NiIs...",
     "token_type": "bearer"
 }`;
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        {/* Title Section Skeleton */}
+        <div className="border-b pb-6">
+          <Skeleton className="h-12 w-96 mb-4" />
+          <Skeleton className="h-6 w-[600px]" />
+        </div>
+
+        {/* Service Type Overview Card Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-72 mb-2" />
+            <Skeleton className="h-4 w-96" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-96" />
+              <div className="space-y-2">
+                <Skeleton className="h-5 w-32" />
+                <div className="space-y-2 pl-4">
+                  <Skeleton className="h-4 w-full max-w-2xl" />
+                  <Skeleton className="h-4 w-full max-w-xl" />
+                  <Skeleton className="h-4 w-full max-w-2xl" />
+                </div>
+              </div>
+              <Skeleton className="h-5 w-48" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Services Directory Card Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-64 mb-2" />
+            <Skeleton className="h-4 w-80" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-20 w-full mb-6" />
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Token Service Documentation Card Skeleton */}
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-72 mb-2" />
+            <Skeleton className="h-4 w-96" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              {/* Service Details Skeleton */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-48" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-full max-w-xl" />
+                  <Skeleton className="h-8 w-32" />
+                </div>
+              </div>
+
+              {/* Headers Skeleton */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-56" />
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+
+              {/* Request Body Skeleton */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64" />
+              </div>
+
+              {/* Response Skeleton */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-40 w-full" />
+              </div>
+
+              {/* Example Skeleton */}
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-24 w-full" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

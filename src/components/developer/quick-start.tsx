@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Copy,
   Check,
@@ -22,10 +22,129 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import apiflow from "@/assets/api-flow.svg";
+
+const QuickStartSkeleton = () => {
+  return (
+    <div className="space-y-8">
+      {/* Header Skeleton */}
+      <div className="border-b pb-6">
+        <Skeleton className="h-10 w-64 mb-2" />
+        <Skeleton className="h-6 w-96" />
+      </div>
+
+      {/* Prerequisites Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Authentication Flow Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-56" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[300px] w-full" />
+        </CardContent>
+      </Card>
+
+      {/* Authentication Steps Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-52" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-96" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-56" />
+              <Skeleton className="h-4 w-96" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Code Examples Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Rate Limits Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-44" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <div className="grid md:grid-cols-2 gap-4">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* API Endpoints Card Skeleton */}
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-96" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const QuickStart = () => {
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading state
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const copyToClipboard = async (text: string, snippetId: string) => {
     try {
@@ -65,7 +184,7 @@ const QuickStart = () => {
     </div>
   );
 
-  // Code snippets
+  // Code snippets definitions remain the same...
   const authTokenCurlSnippet = `curl -X POST "https://api.fintrackit.my.id/v1/auth/token" \\
 -H "X-API-Key: your_api_key_here"`;
 
@@ -128,6 +247,10 @@ const makeSecureRequest = async () => {
   "status_code": 429,
   "detail": "Rate limit exceeded. Please try again later. (150 request / hour for Public Endpoints)"
 }`;
+
+  if (loading) {
+    return <QuickStartSkeleton />;
+  }
 
   return (
     <div className="space-y-8">

@@ -1,17 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Key, Copy, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiKeyService } from '@/lib/apiKey';
 import { authService } from '@/lib/auth';
+
+const APIKeySkeleton = () => {
+  return (
+    <div className="space-y-8">
+      <div className="border-b pb-6">
+        <Skeleton className="h-10 w-64 mb-2" />
+        <Skeleton className="h-6 w-96" />
+      </div>
+
+      <Card>
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-28" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const APIKeys = () => {
   const user = authService.getCurrentUser();
   const [apiKey, setApiKey] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Set initial loading state to true
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,6 +64,14 @@ const APIKeys = () => {
     organization: "",
     phone_number: "",
   });
+
+  // Simulate loading state (you can replace this with real data fetching)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {
@@ -113,6 +161,11 @@ const APIKeys = () => {
       }
     }
   };
+
+  // Show skeleton while loading
+  if (loading) {
+    return <APIKeySkeleton />;
+  }
 
   return (
     <div className="space-y-8">

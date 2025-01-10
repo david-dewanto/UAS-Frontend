@@ -257,99 +257,98 @@ export default function PortfolioOptimizationPage() {
           {selectedStocks.map((stock, index) => (
             <div key={index} className="flex items-center gap-4">
               <div className="relative flex-1">
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  onClick={() => {
-                    setComboboxOpen({
-                      ...comboboxOpen,
-                      [index]: !comboboxOpen[index],
-                    });
-                    // Focus the input when opening
-                    if (!comboboxOpen[index]) {
-                      setTimeout(() => {
-                        searchInputRefs.current[index]?.focus();
-                      }, 0);
-                    }
-                  }}
-                  className={cn(
-                    "w-full justify-between",
-                    !stock && "text-muted-foreground"
-                  )}
-                  disabled={isLoadingSymbols}
-                >
-                  {stock || "Search stock..."}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+              {isLoadingSymbols ? (
+                  <Skeleton className="h-10 w-full" />
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      onClick={() => {
+                        setComboboxOpen({
+                          ...comboboxOpen,
+                          [index]: !comboboxOpen[index],
+                        });
+                        if (!comboboxOpen[index]) {
+                          setTimeout(() => {
+                            searchInputRefs.current[index]?.focus();
+                          }, 0);
+                        }
+                      }}
+                      className={cn(
+                        "w-full justify-between",
+                        !stock && "text-muted-foreground"
+                      )}
+                    >
+                      {stock || "Search stock..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
 
-                {comboboxOpen[index] && (
-                  <div className="absolute top-full z-50 mt-2 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-                    <div className="p-0">
-                      <div className="flex items-center border-b px-3 pb-2">
-                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                        <input
-                          ref={(el) =>
-                            (searchInputRefs.current[index] =
-                              el as HTMLInputElement)
-                          }
-                          className="flex h-10 w-full rounded-md bg-transparent p-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Search stock symbol..."
-                          value={searchInputs[index] || ""}
-                          onChange={(e) =>
-                            setSearchInputs({
-                              ...searchInputs,
-                              [index]: e.target.value,
-                            })
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              const filteredStocks = getFilteredStocks(index);
-                              if (filteredStocks.length === 1) {
-                                updateSelectedStock(index, filteredStocks[0]);
+                    {comboboxOpen[index] && (
+                      <div className="absolute top-full z-50 mt-2 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
+                        <div className="p-0">
+                          <div className="flex items-center border-b px-3 pb-2">
+                            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                            <input
+                              ref={(el) =>
+                                (searchInputRefs.current[index] = el as HTMLInputElement)
                               }
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className="max-h-[300px] overflow-y-auto p-1">
-                        {isLoadingSymbols ? (
-                          <div className="p-2 text-center text-sm text-muted-foreground">
-                            Loading stocks...
+                              className="flex h-10 w-full rounded-md bg-transparent p-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                              placeholder="Search stock symbol..."
+                              value={searchInputs[index] || ""}
+                              onChange={(e) =>
+                                setSearchInputs({
+                                  ...searchInputs,
+                                  [index]: e.target.value,
+                                })
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  const filteredStocks = getFilteredStocks(index);
+                                  if (filteredStocks.length === 1) {
+                                    updateSelectedStock(index, filteredStocks[0]);
+                                  }
+                                }
+                              }}
+                            />
                           </div>
-                        ) : searchInputs[index]?.length < 2 ? (
-                          <p className="p-2 text-center text-sm text-muted-foreground">
-                            Type at least 2 characters to search
-                          </p>
-                        ) : getFilteredStocks(index).length === 0 ? (
-                          <p className="p-2 text-center text-sm text-muted-foreground">
-                            No stocks found
-                          </p>
-                        ) : (
-                          getFilteredStocks(index).map((stock) => (
-                            <div
-                              key={stock}
-                              onClick={() => updateSelectedStock(index, stock)}
-                              className={cn(
-                                "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                                selectedStocks[index] === stock &&
-                                  "bg-accent text-accent-foreground"
-                              )}
-                            >
-                              <CheckIcon
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedStocks[index] === stock
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {stock}
-                            </div>
-                          ))
-                        )}
+                          <div className="max-h-[300px] overflow-y-auto p-1">
+                            {searchInputs[index]?.length < 2 ? (
+                              <p className="p-2 text-center text-sm text-muted-foreground">
+                                Type at least 2 characters to search
+                              </p>
+                            ) : getFilteredStocks(index).length === 0 ? (
+                              <p className="p-2 text-center text-sm text-muted-foreground">
+                                No stocks found
+                              </p>
+                            ) : (
+                              getFilteredStocks(index).map((stock) => (
+                                <div
+                                  key={stock}
+                                  onClick={() => updateSelectedStock(index, stock)}
+                                  className={cn(
+                                    "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                                    selectedStocks[index] === stock &&
+                                      "bg-accent text-accent-foreground"
+                                  )}
+                                >
+                                  <CheckIcon
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedStocks[index] === stock
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {stock}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -366,11 +365,7 @@ export default function PortfolioOptimizationPage() {
           ))}
 
           {selectedStocks.length < 5 && (
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={addStockSelector}
-            >
+            <Button variant="outline" className="w-full" onClick={addStockSelector}>
               <Plus className="mr-2 h-4 w-4" />
               Add Stock
             </Button>

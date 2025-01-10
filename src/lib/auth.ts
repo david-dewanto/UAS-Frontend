@@ -21,6 +21,7 @@ export interface LoginResponse {
   email: string;
   email_verified: boolean;
   message: string | null;
+  id_token: string; // Added this
 }
 
 export interface PasswordResetRequest {
@@ -37,7 +38,7 @@ export const authService = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     try {
       const { data } = await api.post<LoginResponse>("/internal/auth/signin/email/", credentials);
-      if (data.uid) {
+      if (data.id_token) { // Changed to check for id_token instead of uid
         localStorage.setItem("user", JSON.stringify(data));
       }
       return data;
@@ -69,7 +70,7 @@ export const authService = {
         id_token: idToken,
       });
 
-      if (data.uid) {
+      if (data.id_token) { // Changed to check for id_token instead of uid
         localStorage.setItem("user", JSON.stringify(data));
       }
 

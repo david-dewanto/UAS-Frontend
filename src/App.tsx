@@ -1,7 +1,8 @@
-// src/App.tsx
 import { Routes, Route, Outlet } from "react-router-dom";
-import InvestmentsDashboardPage from "./pages/InvestmentDashboardPage";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { RequireAuth } from "@/components/auth/RequireAuth";
 import { Toaster } from "@/components/ui/toaster";
+import InvestmentsDashboardPage from "./pages/InvestmentDashboardPage";
 import AddInvestmentPage from "./pages/AddInvestmentPage";
 import LandingPage from "./pages/LandingPage";
 import IndividualStockPage from "./pages/IndividualStockPage";
@@ -18,21 +19,54 @@ import PortfolioOptimizationPage from "./pages/PortfolioOptimizationPage";
 import QuickStart from "./components/developer/quick-start";
 import "./App.css";
 
+// Protected Dashboard Route wrapper
+function ProtectedDashboard() {
+  return (
+    <RequireAuth>
+      <DashboardPage />
+    </RequireAuth>
+  );
+}
+
+// Protected Investment Routes wrapper
+function ProtectedInvestments() {
+  return (
+    <RequireAuth>
+      <Outlet />
+    </RequireAuth>
+  );
+}
+
+// Protected Developer Routes wrapper
+function ProtectedDeveloper() {
+  return (
+    <RequireAuth>
+      <Outlet />
+    </RequireAuth>
+  );
+}
+
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardPage />}>
-          <Route path="investments" element={<Outlet />}>
+
+        {/* Protected Dashboard Routes */}
+        <Route path="/dashboard" element={<ProtectedDashboard />}>
+          {/* Investment Routes */}
+          <Route path="investments" element={<ProtectedInvestments />}>
             <Route path="dashboard" element={<InvestmentsDashboardPage />} />
             <Route path="add-investment" element={<AddInvestmentPage />} />
             <Route path="stocks-analysis" element={<IndividualStockPage />} />
-            <Route path="portfolio-analysis" element={<PortfolioOptimizationPage />} /> {/* New route */}
+            <Route path="portfolio-analysis" element={<PortfolioOptimizationPage />} />
           </Route>
-          <Route path="developer">
+
+          {/* Developer Routes */}
+          <Route path="developer" element={<ProtectedDeveloper />}>
             <Route index element={<div>Developer Dashboard</div>} />
             <Route path="quick-start" element={<QuickStart />} />
             <Route path="api-keys" element={<APIKeys />} />
@@ -49,10 +83,19 @@ function App() {
             </Route>
           </Route>
         </Route>
-        <Route path="*" element={<div>Page not found</div>} />
+
+        {/* 404 Route */}
+        <Route path="*" element={
+          <div className="flex min-h-screen items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold">404</h1>
+              <p className="mt-2 text-muted-foreground">Page not found</p>
+            </div>
+          </div>
+        } />
       </Routes>
       <Toaster />
-    </>
+    </AuthProvider>
   );
 }
 

@@ -37,15 +37,19 @@ export default function IndividualStockPage() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [stockSymbols, setStockSymbols] = useState<string[]>([]);
+  const [isLoadingSymbols, setIsLoadingSymbols] = useState(true);
 
   // Fetch stock symbols
   useEffect(() => {
     const fetchSymbols = async () => {
+      setIsLoadingSymbols(true);
       try {
         const response = await companyService.getSymbols();
         setStockSymbols(response.symbols);
       } catch (error) {
         console.error("Error fetching symbols:", error);
+      } finally {
+        setIsLoadingSymbols(false);
       }
     };
     fetchSymbols();
@@ -186,25 +190,29 @@ export default function IndividualStockPage() {
         </CardHeader>
         <CardContent>
           <div className="relative">
-            <Button
-              variant="outline"
-              role="combobox"
-              onClick={() => {
-                setIsSearchOpen(!isSearchOpen);
-                if (!isSearchOpen) {
-                  setTimeout(() => {
-                    searchInputRef.current?.focus();
-                  }, 0);
-                }
-              }}
-              className={cn(
-                "w-full justify-between",
-                !selectedStock && "text-muted-foreground"
-              )}
-            >
-              {selectedStock || "Search stock..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
+            {isLoadingSymbols ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Button
+                variant="outline"
+                role="combobox"
+                onClick={() => {
+                  setIsSearchOpen(!isSearchOpen);
+                  if (!isSearchOpen) {
+                    setTimeout(() => {
+                      searchInputRef.current?.focus();
+                    }, 0);
+                  }
+                }}
+                className={cn(
+                  "w-full justify-between",
+                  !selectedStock && "text-muted-foreground"
+                )}
+              >
+                {selectedStock || "Search stock..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            )}
 
             {isSearchOpen && (
               <div className="absolute top-full z-50 mt-2 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">

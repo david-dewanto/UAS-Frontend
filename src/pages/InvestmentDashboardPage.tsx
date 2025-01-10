@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
 import { investmentService, Transaction } from '@/lib/investment';
 import { authService } from '@/lib/auth';
 import { PortfolioSummary } from '@/components/investments/PortfolioSummary';
 import { PerformanceChart } from '@/components/investments/PerformanceChart';
 import { CurrentHoldings } from '@/components/investments/CurrentHoldings';
 import { ReturnMetrics } from '@/components/investments/ReturnMetrics';
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function InvestmentsDashboardPage() {
   const navigate = useNavigate();
@@ -42,14 +42,6 @@ export default function InvestmentsDashboardPage() {
     fetchData();
   }, [navigate]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className="p-4">
@@ -72,8 +64,32 @@ export default function InvestmentsDashboardPage() {
           Track and analyze your investment portfolio
         </p>
       </div>
-
-      {!hasHoldings ? (
+  
+      {error ? (
+        <div className="p-4">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </div>
+      ) : isLoading ? (
+        <div className="grid gap-8">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton className="h-4 w-[150px]" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-7 w-[120px]" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Skeleton className="h-[400px] w-full" />
+          <Skeleton className="h-[300px] w-full" />
+          <Skeleton className="h-[400px] w-full" />
+        </div>
+      ) : !hasHoldings ? (
         <Card className="p-8 text-center">
           <p className="text-lg text-muted-foreground">
             You don't have any active investments yet.
