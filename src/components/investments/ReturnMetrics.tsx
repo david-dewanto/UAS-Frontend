@@ -88,7 +88,6 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
   const {
     isLoading: isPricesLoading,
     error: pricesError,
-    stockPrices,
   } = useStockPrices(transactions, lastWeek, today);
 
   // Fetch trend analysis using our new hook
