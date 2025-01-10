@@ -85,10 +85,11 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
   );
 
   // Fetch stock prices using the existing hook
-  const {
-    isLoading: isPricesLoading,
-    error: pricesError,
-  } = useStockPrices(transactions, lastWeek, today);
+  const { isLoading: isPricesLoading, error: pricesError } = useStockPrices(
+    transactions,
+    lastWeek,
+    today
+  );
 
   // Fetch trend analysis using our new hook
   const {
@@ -99,49 +100,55 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
   } = useStockTrendAnalysis(stockCodes);
 
   // Calculate metrics
-useEffect(() => {
-  const calculateMetrics = async () => {
-    // Only proceed if neither is loading and we have stock codes
-    if (isPricesLoading || isTrendLoading || stockCodes.length === 0) {
-      return;
-    }
+  useEffect(() => {
+    const calculateMetrics = async () => {
+      // Only proceed if neither is loading and we have stock codes
+      if (isPricesLoading || isTrendLoading || stockCodes.length === 0) {
+        return;
+      }
 
-    try {
-      setIsCalculating(true);
-      setError(null);
+      try {
+        setIsCalculating(true);
+        setError(null);
 
-      // Get Sharpe ratios for each stock ONCE
-      const sharpePromises = stockCodes.map(stockCode => 
-        investmentService.getSharpeRatio(stockCode)
-      );
+        // Get Sharpe ratios for each stock ONCE
+        const sharpePromises = stockCodes.map((stockCode) =>
+          investmentService.getSharpeRatio(stockCode)
+        );
 
-      // Wait for all Sharpe ratios
-      const sharpeResults = await Promise.all(sharpePromises);
+        // Wait for all Sharpe ratios
+        const sharpeResults = await Promise.all(sharpePromises);
 
-      // Combine with trend analysis
-      const stockMetrics = sharpeResults.map((sharpeData, index) => {
-        const stockCode = stockCodes[index];
-        return {
-          stockCode,
-          sharpeRatio: sharpeData.sharpe_ratio,
-          averageReturn: sharpeData.avg_annual_return * 100,
-          volatility: sharpeData.return_volatility * 100,
-          trendStrength: getTrendStrength(stockCode),
-          forecastMetrics: getForecastMetrics(stockCode)
-        };
-      });
+        // Combine with trend analysis
+        const stockMetrics = sharpeResults.map((sharpeData, index) => {
+          const stockCode = stockCodes[index];
+          return {
+            stockCode,
+            sharpeRatio: sharpeData.sharpe_ratio,
+            averageReturn: sharpeData.avg_annual_return * 100,
+            volatility: sharpeData.return_volatility * 100,
+            trendStrength: getTrendStrength(stockCode),
+            forecastMetrics: getForecastMetrics(stockCode),
+          };
+        });
 
-      setMetrics(stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode)));
-    } catch (err) {
-      console.error('Error calculating metrics:', err);
-      setError(err instanceof Error ? err.message : "Failed to calculate return metrics");
-    } finally {
-      setIsCalculating(false);
-    }
-  };
+        setMetrics(
+          stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode))
+        );
+      } catch (err) {
+        console.error("Error calculating metrics:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to calculate return metrics"
+        );
+      } finally {
+        setIsCalculating(false);
+      }
+    };
 
-  calculateMetrics();
-}, [stockCodes, isPricesLoading, isTrendLoading]);
+    calculateMetrics();
+  }, [stockCodes, isPricesLoading, isTrendLoading]);
 
   if (pricesError || trendError || error) {
     return (
@@ -255,7 +262,14 @@ useEffect(() => {
             </Table>
           </div>
         )}
+        <Alert className="mt-6 mb-0 bg-gray-100 border-gray-200">
+          <AlertDescription className="text-black-700 text-center">
+            In Collaboration with Pintar Ekspor App (Arvyno Pranata Limahardja -
+            18222007)
+          </AlertDescription>
+        </Alert>
       </CardContent>
+      
     </Card>
   );
 }

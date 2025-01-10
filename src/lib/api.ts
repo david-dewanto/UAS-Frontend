@@ -7,7 +7,7 @@ const API_URL = '/api/proxy' // DEVELOPMENT SERVER http://127.0.0.1:8000/v1
 const api = axios.create({
   baseURL: API_URL,  
   headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   },
   withCredentials: false,
 });
