@@ -1,22 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
+import { useState, useEffect, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  ChartBarIcon, 
-  ShieldCheckIcon,
-  AlertTriangleIcon
-} from 'lucide-react';
-import { Transaction, investmentService } from '@/lib/investment';
-import { useStockPrices } from '@/hooks/useStockPrices';
+} from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChartBarIcon, ShieldCheckIcon, AlertTriangleIcon } from "lucide-react";
+import { Transaction, investmentService } from "@/lib/investment";
+import { useStockPrices } from "@/hooks/useStockPrices";
 
 interface ReturnMetricsProps {
   transactions: Transaction[];
@@ -24,8 +20,6 @@ interface ReturnMetricsProps {
 
 interface StockMetrics {
   stockCode: string;
-  twr: number;
-  mwr: number;
   sharpeRatio: number;
   averageReturn: number;
   volatility: number;
@@ -53,11 +47,11 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
   }, [today]);
 
   // Fetch stock prices using the hook
-  const { isLoading: isPricesLoading, error: pricesError, stockPrices } = useStockPrices(
-    transactions,
-    lastWeek,
-    today
-  );
+  const {
+    isLoading: isPricesLoading,
+    error: pricesError,
+    stockPrices,
+  } = useStockPrices(transactions, lastWeek, today);
 
   // Calculate metrics
   useEffect(() => {
@@ -76,40 +70,28 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
         }
 
         // Get unique stock codes
-        const stockCodes = [...new Set(transactions.map(tx => tx.stock_code))];
-
-        // Calculate returns for all stocks
-        const returns = await investmentService.calculateReturns(
-          transactions.map(tx => ({
-            stock_code: tx.stock_code,
-            transaction_type: tx.transaction_type,
-            quantity: tx.quantity,
-            price_per_share: tx.price_per_share,
-            total_value: tx.total_value,
-            transaction_date: tx.transaction_date,
-          }))
-        );
+        const stockCodes = [
+          ...new Set(transactions.map((tx) => tx.stock_code)),
+        ];
 
         // Get Sharpe ratios for each stock
         const stockMetrics = await Promise.all(
           stockCodes.map(async (stockCode) => {
             try {
-              const sharpeData = await investmentService.getSharpeRatio(stockCode);
-              
+              const sharpeData = await investmentService.getSharpeRatio(
+                stockCode
+              );
+
               return {
                 stockCode,
-                twr: returns.stock_breakdown[stockCode]?.twr || 0,
-                mwr: returns.stock_breakdown[stockCode]?.mwr || 0,
                 sharpeRatio: sharpeData.sharpe_ratio,
-                averageReturn: sharpeData.avg_annual_return * 100, // Convert to percentage
-                volatility: sharpeData.return_volatility * 100, // Convert to percentage
+                averageReturn: sharpeData.avg_annual_return * 100,
+                volatility: sharpeData.return_volatility * 100,
               };
             } catch (error) {
               console.error(`Error fetching metrics for ${stockCode}:`, error);
               return {
                 stockCode,
-                twr: returns.stock_breakdown[stockCode]?.twr || 0,
-                mwr: returns.stock_breakdown[stockCode]?.mwr || 0,
                 sharpeRatio: 0,
                 averageReturn: 0,
                 volatility: 0,
@@ -118,10 +100,15 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
           })
         );
 
-        // Sort alphabetically by stock code
-        setMetrics(stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode)));
+        setMetrics(
+          stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode))
+        );
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to calculate return metrics');
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to calculate return metrics"
+        );
       } finally {
         setIsCalculating(false);
       }
@@ -203,12 +190,18 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[100px]">Stock</TableHead>
-                  <TableHead className="text-right w-[80px]">TWR</TableHead>
-                  <TableHead className="text-right w-[80px]">MWR</TableHead>
-                  <TableHead className="text-right w-[120px]">Avg. Return</TableHead>
-                  <TableHead className="text-right w-[100px]">Volatility</TableHead>
-                  <TableHead className="text-right w-[120px]">Sharpe Ratio</TableHead>
-                  <TableHead className="text-right w-[100px]">Risk Level</TableHead>
+                  <TableHead className="text-right w-[120px]">
+                    Avg. Return
+                  </TableHead>
+                  <TableHead className="text-right w-[100px]">
+                    Volatility
+                  </TableHead>
+                  <TableHead className="text-right w-[120px]">
+                    Sharpe Ratio
+                  </TableHead>
+                  <TableHead className="text-right w-[100px]">
+                    Risk Level
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,17 +211,13 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
                       {stock.stockCode}
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={stock.twr >= 0 ? 'text-green-500' : 'text-red-500'}>
-                        {formatPercent(stock.twr * 100)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className={stock.mwr >= 0 ? 'text-green-500' : 'text-red-500'}>
-                        {formatPercent(stock.mwr * 100)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className={stock.averageReturn >= 0 ? 'text-green-500' : 'text-red-500'}>
+                      <span
+                        className={
+                          stock.averageReturn >= 0
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }
+                      >
                         {formatPercent(stock.averageReturn)}
                       </span>
                     </TableCell>

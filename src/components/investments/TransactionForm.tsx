@@ -1,5 +1,5 @@
 // src/components/TransactionForm.tsx
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
@@ -24,7 +24,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, CheckIcon, ChevronsUpDown, Loader2, Search } from "lucide-react";
+import {
+  CalendarIcon,
+  CheckIcon,
+  ChevronsUpDown,
+  Loader2,
+  Search,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -62,6 +68,7 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const { toast } = useToast();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form
   const form = useForm<FormData>({
@@ -181,12 +188,13 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
       onSuccess?.();
     } catch (error) {
       console.error("Error creating transaction:", error);
-      
+
       // Handle specific error cases
       let errorMessage = "Failed to create transaction";
       if (error instanceof Error) {
         if (error.message.includes("No data found for stock")) {
-          errorMessage = "Please select a valid trading date. The selected date might be a holiday or outside the trading period.";
+          errorMessage =
+            "Please select a valid trading date. The selected date might be a holiday or outside the trading period.";
         } else {
           errorMessage = error.message;
         }
@@ -197,7 +205,7 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
         title: "Error",
         description: errorMessage,
       });
-      
+
       onError?.(errorMessage);
     } finally {
       setIsLoading(false);
@@ -294,7 +302,14 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
                     type="button"
                     variant="outline"
                     role="combobox"
-                    onClick={() => setComboboxOpen(!comboboxOpen)}
+                    onClick={() => {
+                      setComboboxOpen(!comboboxOpen);
+                      if (!comboboxOpen) {
+                        setTimeout(() => {
+                          searchInputRef.current?.focus();
+                        }, 0);
+                      }
+                    }}
                     className={cn(
                       "w-full justify-between",
                       !field.value && "text-muted-foreground"
@@ -316,16 +331,31 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
                         </div>
                       ) : (
                         <div className="max-h-[300px] overflow-y-auto">
-                          <div className="border-input flex items-center border-b px-3" cmdk-input-wrapper="">
+                          <div
+                            className="border-input flex items-center border-b px-3"
+                            cmdk-input-wrapper=""
+                          >
                             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                             <input
+                              ref={searchInputRef}
                               className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                               placeholder="Search stock..."
                               value={field.value}
                               onChange={(e) => {
                                 form.setValue("stock_code", e.target.value, {
-                                  shouldValidate: false
+                                  shouldValidate: false,
                                 });
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  if (filteredStocks.length === 1) {
+                                    form.setValue(
+                                      "stock_code",
+                                      filteredStocks[0]
+                                    );
+                                    setComboboxOpen(false);
+                                  }
+                                }
                               }}
                             />
                           </div>
@@ -348,13 +378,16 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
                                   }}
                                   className={cn(
                                     "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                                    field.value === stock && "bg-accent text-accent-foreground"
+                                    field.value === stock &&
+                                      "bg-accent text-accent-foreground"
                                   )}
                                 >
                                   <CheckIcon
                                     className={cn(
                                       "mr-2 h-4 w-4",
-                                      field.value === stock ? "opacity-100" : "opacity-0"
+                                      field.value === stock
+                                        ? "opacity-100"
+                                        : "opacity-0"
                                     )}
                                   />
                                   {stock}

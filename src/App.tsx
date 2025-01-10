@@ -14,6 +14,7 @@ import EmailDocumentation from "./components/developer/docs/email";
 import CompaniesDocumentation from "./components/developer/docs/companies";
 import IndividualStocksDocumentation from "./components/developer/docs/individual_stocks";
 import PortfolioDocumentation from "./components/developer/docs/portfolio";
+import PortfolioOptimizationPage from "./pages/PortfolioOptimizationPage";
 import QuickStart from "./components/developer/quick-start";
 import "./App.css";
 
@@ -29,6 +30,7 @@ function App() {
             <Route path="dashboard" element={<InvestmentsDashboardPage />} />
             <Route path="add-investment" element={<AddInvestmentPage />} />
             <Route path="stocks-analysis" element={<IndividualStockPage />} />
+            <Route path="portfolio-analysis" element={<PortfolioOptimizationPage />} /> {/* New route */}
           </Route>
           <Route path="developer">
             <Route index element={<div>Developer Dashboard</div>} />

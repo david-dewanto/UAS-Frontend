@@ -1,5 +1,5 @@
 // src/pages/IndividualStockPage.tsx
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useStockAnalysis, useStockPriceChart } from "@/hooks/useStockAnalysis";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -30,6 +30,7 @@ import {
 type TimeRange = "1M" | "3M" | "6M" | "1Y" | "ALL";
 
 export default function IndividualStockPage() {
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>("6M");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -187,7 +188,14 @@ export default function IndividualStockPage() {
             <Button
               variant="outline"
               role="combobox"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={() => {
+                setIsSearchOpen(!isSearchOpen);
+                if (!isSearchOpen) {
+                  setTimeout(() => {
+                    searchInputRef.current?.focus();
+                  }, 0);
+                }
+              }}
               className={cn(
                 "w-full justify-between",
                 !selectedStock && "text-muted-foreground"
@@ -203,10 +211,20 @@ export default function IndividualStockPage() {
                   <div className="flex items-center border-b px-3 pb-2">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                     <input
+                      ref={searchInputRef}
                       className="flex h-10 w-full rounded-md bg-transparent p-2 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                       placeholder="Search stock symbol..."
                       value={searchInput}
                       onChange={(e) => setSearchInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          if (filteredStocks.length === 1) {
+                            setSelectedStock(filteredStocks[0]);
+                            setIsSearchOpen(false);
+                            setSearchInput("");
+                          }
+                        }
+                      }}
                     />
                   </div>
                   <div className="max-h-[300px] overflow-y-auto p-1">
@@ -283,7 +301,7 @@ export default function IndividualStockPage() {
                       <TabsTrigger value="3M">3M</TabsTrigger>
                       <TabsTrigger value="6M">6M</TabsTrigger>
                       <TabsTrigger value="1Y">1Y</TabsTrigger>
-                      <TabsTrigger value="ALL">ALL</TabsTrigger>
+                      <TabsTrigger value="ALL">3Y</TabsTrigger>
                     </TabsList>
                   </Tabs>
                 </div>
@@ -318,7 +336,7 @@ export default function IndividualStockPage() {
                         content={({ active, payload }) => {
                           if (active && payload && payload.length) {
                             const dataPoint = payload[0]?.payload;
-                            
+
                             return (
                               <div className="rounded-lg border bg-background p-2 shadow-sm">
                                 <div className="grid grid-cols-2 gap-2">
@@ -349,7 +367,10 @@ export default function IndividualStockPage() {
                                       Volume
                                     </span>
                                     <span className="font-bold text-sm">
-                                      {(dataPoint.volume_thousands || 0).toFixed(1)}M
+                                      {(
+                                        dataPoint.volume_thousands || 0
+                                      ).toFixed(1)}
+                                      M
                                     </span>
                                   </div>
                                 </div>
