@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { companyService } from "@/lib/company";
+import { StockAnalysisCard } from "@/components/StockAnalysisCard";
 import {
   ChevronsUpDown,
   CheckIcon,
@@ -288,6 +289,7 @@ export default function IndividualStockPage() {
         ) : data ? (
           <div className="space-y-6">
             {/* Price Chart */}
+            <StockAnalysisCard stockCode={selectedStock} />
             <Card>
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

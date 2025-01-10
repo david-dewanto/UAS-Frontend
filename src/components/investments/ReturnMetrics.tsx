@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ChartBarIcon, ShieldCheckIcon, AlertTriangleIcon } from "lucide-react";
 import { Transaction, investmentService } from "@/lib/investment";
 import { useStockPrices } from "@/hooks/useStockPrices";
+import { useStockTrendAnalysis } from "@/hooks/useStockTrendAnalysis";
 
 interface ReturnMetricsProps {
   transactions: Transaction[];
@@ -23,13 +24,19 @@ interface StockMetrics {
   sharpeRatio: number;
   averageReturn: number;
   volatility: number;
+  trendStrength?: number | null;
+  forecastMetrics?: {
+    mae: number;
+    rmse: number;
+  } | null;
 }
 
 function formatPercent(value: number): string {
   return `${value.toFixed(2)}%`;
 }
 
-function formatDecimal(value: number): string {
+function formatDecimal(value: number | undefined | null): string {
+  if (value == null) return "N/A";
   return value.toFixed(2);
 }
 
@@ -37,85 +44,6 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
   const [metrics, setMetrics] = useState<StockMetrics[]>([]);
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Get dates for price data
-  const today = useMemo(() => new Date(), []);
-  const lastWeek = useMemo(() => {
-    const date = new Date(today);
-    date.setDate(date.getDate() - 7);
-    return date;
-  }, [today]);
-
-  // Fetch stock prices using the hook
-  const {
-    isLoading: isPricesLoading,
-    error: pricesError,
-    stockPrices,
-  } = useStockPrices(transactions, lastWeek, today);
-
-  // Calculate metrics
-  useEffect(() => {
-    const calculateMetrics = async () => {
-      if (isPricesLoading || pricesError || !Object.keys(stockPrices).length) {
-        return;
-      }
-
-      try {
-        setIsCalculating(true);
-        setError(null);
-
-        if (transactions.length === 0) {
-          setMetrics([]);
-          return;
-        }
-
-        // Get unique stock codes
-        const stockCodes = [
-          ...new Set(transactions.map((tx) => tx.stock_code)),
-        ];
-
-        // Get Sharpe ratios for each stock
-        const stockMetrics = await Promise.all(
-          stockCodes.map(async (stockCode) => {
-            try {
-              const sharpeData = await investmentService.getSharpeRatio(
-                stockCode
-              );
-
-              return {
-                stockCode,
-                sharpeRatio: sharpeData.sharpe_ratio,
-                averageReturn: sharpeData.avg_annual_return * 100,
-                volatility: sharpeData.return_volatility * 100,
-              };
-            } catch (error) {
-              console.error(`Error fetching metrics for ${stockCode}:`, error);
-              return {
-                stockCode,
-                sharpeRatio: 0,
-                averageReturn: 0,
-                volatility: 0,
-              };
-            }
-          })
-        );
-
-        setMetrics(
-          stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode))
-        );
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Failed to calculate return metrics"
-        );
-      } finally {
-        setIsCalculating(false);
-      }
-    };
-
-    calculateMetrics();
-  }, [transactions, stockPrices, isPricesLoading, pricesError]);
 
   const renderRiskIndicator = (sharpeRatio: number) => {
     if (sharpeRatio >= 1) {
@@ -142,15 +70,91 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
     }
   };
 
-  if (pricesError || error) {
+  // Get dates for price data
+  const today = useMemo(() => new Date(), []);
+  const lastWeek = useMemo(() => {
+    const date = new Date(today);
+    date.setDate(date.getDate() - 7);
+    return date;
+  }, [today]);
+
+  // Get unique stock codes
+  const stockCodes = useMemo(
+    () => [...new Set(transactions.map((tx) => tx.stock_code))],
+    [transactions]
+  );
+
+  // Fetch stock prices using the existing hook
+  const {
+    isLoading: isPricesLoading,
+    error: pricesError,
+    stockPrices,
+  } = useStockPrices(transactions, lastWeek, today);
+
+  // Fetch trend analysis using our new hook
+  const {
+    isLoading: isTrendLoading,
+    error: trendError,
+    getTrendStrength,
+    getForecastMetrics,
+  } = useStockTrendAnalysis(stockCodes);
+
+  // Calculate metrics
+useEffect(() => {
+  const calculateMetrics = async () => {
+    // Only proceed if neither is loading and we have stock codes
+    if (isPricesLoading || isTrendLoading || stockCodes.length === 0) {
+      return;
+    }
+
+    try {
+      setIsCalculating(true);
+      setError(null);
+
+      // Get Sharpe ratios for each stock ONCE
+      const sharpePromises = stockCodes.map(stockCode => 
+        investmentService.getSharpeRatio(stockCode)
+      );
+
+      // Wait for all Sharpe ratios
+      const sharpeResults = await Promise.all(sharpePromises);
+
+      // Combine with trend analysis
+      const stockMetrics = sharpeResults.map((sharpeData, index) => {
+        const stockCode = stockCodes[index];
+        return {
+          stockCode,
+          sharpeRatio: sharpeData.sharpe_ratio,
+          averageReturn: sharpeData.avg_annual_return * 100,
+          volatility: sharpeData.return_volatility * 100,
+          trendStrength: getTrendStrength(stockCode),
+          forecastMetrics: getForecastMetrics(stockCode)
+        };
+      });
+
+      setMetrics(stockMetrics.sort((a, b) => a.stockCode.localeCompare(b.stockCode)));
+    } catch (err) {
+      console.error('Error calculating metrics:', err);
+      setError(err instanceof Error ? err.message : "Failed to calculate return metrics");
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  calculateMetrics();
+}, [stockCodes, isPricesLoading, isTrendLoading]);
+
+  if (pricesError || trendError || error) {
     return (
       <Alert variant="destructive">
-        <AlertDescription>{pricesError || error}</AlertDescription>
+        <AlertDescription>
+          {pricesError || trendError || error}
+        </AlertDescription>
       </Alert>
     );
   }
 
-  const isLoading = isPricesLoading || isCalculating;
+  const isLoading = isPricesLoading || isTrendLoading || isCalculating;
 
   return (
     <Card>
@@ -202,6 +206,12 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
                   <TableHead className="text-right w-[100px]">
                     Risk Level
                   </TableHead>
+                  <TableHead className="text-right w-[100px]">
+                    Trend Strength
+                  </TableHead>
+                  <TableHead className="text-right w-[100px]">
+                    Forecast Error
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -229,6 +239,16 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       {renderRiskIndicator(stock.sharpeRatio)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {stock.trendStrength !== null
+                        ? formatDecimal(stock.trendStrength)
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {stock.forecastMetrics
+                        ? formatDecimal(stock.forecastMetrics.rmse)
+                        : "N/A"}
                     </TableCell>
                   </TableRow>
                 ))}

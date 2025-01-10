@@ -322,5 +322,42 @@ export const investmentService = {
     return Object.fromEntries(
       Object.entries(holdings).filter(([_, quantity]) => quantity > 0)
     );
+  },
+  
+  analyzeStocks: async (stockCodes: string[]): Promise<StockAnalysisResponse> => {
+    try {
+      const { data } = await api.post<StockAnalysisResponse>(
+        '/internal/analyze-stocks',
+        { stock_codes: stockCodes }
+      );
+      return data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(error.response.data.detail || 'Failed to analyze stocks');
+      }
+      throw new Error('Failed to analyze stocks');
+    }
   }
 };
+
+export interface StockAnalysisRequest {
+  stock_codes: string[];
+}
+
+export interface StockAnalysisResponse {
+  timestamp: string;
+  analysis: {
+    [key: string]: {  // e.g. category_BBCA
+      trend: {
+        strength: number;
+      };
+      forecast: {
+        metrics: {
+          mae: number;
+          rmse: number;
+        };
+      };
+    };
+  };
+}
+
