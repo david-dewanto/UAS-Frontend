@@ -184,7 +184,13 @@ export function TransactionForm({ onSuccess, onError }: TransactionFormProps) {
         className: "bg-[hsl(142,76%,36%)] text-white border-0",
       });
 
-      form.reset();
+      form.reset({
+        transaction_type: values.transaction_type, 
+        quantity: 1,
+        stock_code: '',
+        transaction_date: null as unknown as Date, 
+      });
+
       onSuccess?.();
     } catch (error) {
       console.error("Error creating transaction:", error);
