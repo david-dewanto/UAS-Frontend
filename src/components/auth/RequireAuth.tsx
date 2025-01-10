@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { authService } from '@/lib/auth';
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -9,9 +10,12 @@ interface RequireAuthProps {
 export function RequireAuth({ children }: RequireAuthProps) {
   const { user } = useAuth();
   const location = useLocation();
-
-  // If not authenticated, show message and redirect to login
-  if (!user) {
+  
+  // Check if user exists in localStorage first
+  const storedUser = authService.getCurrentUser();
+  
+  // If no user in localStorage, then redirect
+  if (!storedUser && !user) {
     // Store auth message for unauthorized access
     localStorage.setItem(
       "authMessage",
@@ -35,6 +39,7 @@ export function RequireAuth({ children }: RequireAuthProps) {
     return <Navigate to={`/login?returnUrl=${encodedFrom}`} replace state={{ from: location }} />;
   }
 
-  // Render children if authenticated
+  // Allow access if either storedUser or user exists
+  // Token validation happens in background through AuthContext
   return <>{children}</>;
 }
