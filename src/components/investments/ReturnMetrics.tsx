@@ -80,7 +80,7 @@ export function ReturnMetrics({ transactions }: ReturnMetricsProps) {
 
   // Get unique stock codes
   const stockCodes = useMemo(
-    () => [...new Set(transactions.map((tx) => tx.stock_code))],
+    () => Object.keys(investmentService.calculateCurrentHoldings(transactions)),
     [transactions]
   );
 
